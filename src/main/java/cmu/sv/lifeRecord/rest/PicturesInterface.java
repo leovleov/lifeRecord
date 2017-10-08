@@ -52,7 +52,7 @@ public class PicturesInterface {
             return carList;
 
         } catch(Exception e) {
-            System.out.println("GetAll EXCEPTION!!!!");
+            System.out.println("Get Data EXCEPTION!!!!");
             e.printStackTrace();
             throw new APPInternalServerException(99,e.getMessage());
         }
@@ -81,7 +81,7 @@ public class PicturesInterface {
             return pic;
 
         } catch(APPNotFoundException e) {
-            throw new APPNotFoundException(0,"No such picture, my friend.");
+            throw new APPNotFoundException(0,"No such picture.");
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
         }  catch(Exception e) {

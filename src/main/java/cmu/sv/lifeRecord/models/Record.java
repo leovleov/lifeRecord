@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Record {
     String id, recordName, recordInfo, albumId, targetId, viewId, likeId, editorId;
-    public Record(String recordName, String recordInfo, String picture, String albumId, String targetId,
+    public Record(String recordName, String recordInfo, String albumId, String targetId,
                   String viewId, String likeId, String editorId){
         this.recordName = recordName;
         this.recordInfo = recordInfo;
