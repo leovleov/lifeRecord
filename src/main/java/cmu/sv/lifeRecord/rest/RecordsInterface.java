@@ -155,16 +155,22 @@ public class RecordsInterface {
             if (json.has("albumId"))
                 doc.append("albumId",json.getString("albumId"));
             if (json.has("targetId"))
-                doc.append("targetId",json.getString("targetId"));
+                //doc.append("targetId",json.getString("targetId"));
+                throw new APPBadRequestException(33, "Target can't be updated.");
             if (json.has("viewId"))
-                doc.append("viewId",json.getString("viewId"));
+                //doc.append("viewId",json.getString("viewId"));
+                throw new APPBadRequestException(33, "View History can't be updated.");
             if (json.has("likeId"))
-                doc.append("likeId",json.getString("likeId"));
+                //doc.append("likeId",json.getString("likeId"));
+                throw new APPBadRequestException(33, "Like list can't be updated.");
             if (json.has("editorId"))
-                doc.append("editorId",json.getString("editorId"));
+                //doc.append("editorId",json.getString("editorId"));
+                throw new APPBadRequestException(33, "Editor can't be updated.");
             Document set = new Document("$set", doc);
             collection.updateOne(query,set);
 
+        } catch(APPBadRequestException e){
+            throw new APPBadRequestException(33, "Some parameters can't be updated.");
         } catch(JSONException e) {
             //System.out.println("Failed to patch a document");
             throw new APPBadRequestException(33,"Failed to patch a document");

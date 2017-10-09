@@ -113,10 +113,13 @@ public class PicturesInterface {
             if (json.has("url"))
                 doc.append("url",json.getString("url"));
             if (json.has("recordId"))
-                doc.append("recordId",json.getString("recordId"));
+                //doc.append("recordId",json.getString("recordId"));
+                throw new APPBadRequestException(33, "Record can't be updated.");
             Document set = new Document("$set", doc);
             collection.updateOne(query,set);
 
+        }  catch(APPBadRequestException e){
+            throw new APPBadRequestException(33, "Record can't be updated.");
         } catch(JSONException e) {
             System.out.println("Failed to patch a document");
 
