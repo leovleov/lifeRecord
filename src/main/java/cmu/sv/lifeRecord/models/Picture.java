@@ -1,7 +1,5 @@
 package cmu.sv.lifeRecord.models;
 
-import java.util.Date;
-
 public class Picture {
     String id, url, recordId;
     public Picture(String url, String recordId){

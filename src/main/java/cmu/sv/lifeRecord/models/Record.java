@@ -1,6 +1,5 @@
 package cmu.sv.lifeRecord.models;
 
-import java.util.Date;
 
 public class Record {
     String id, recordName, recordInfo, albumId, targetId, viewId, likeId, editorId;
