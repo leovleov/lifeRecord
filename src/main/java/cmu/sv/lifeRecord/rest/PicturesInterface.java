@@ -37,7 +37,7 @@ public class PicturesInterface {
     @Produces({ MediaType.APPLICATION_JSON})
     public ArrayList<Picture> getAll() {
 
-        ArrayList<Picture> carList = new ArrayList<Picture>();
+        ArrayList<Picture> picList = new ArrayList<Picture>();
 
         try {
             FindIterable<Document> results = collection.find();
@@ -47,9 +47,9 @@ public class PicturesInterface {
                         item.getString("recordId")
                 );
                 pic.setId(item.getObjectId("_id").toString());
-                carList.add(pic);
+                picList.add(pic);
             }
-            return carList;
+            return picList;
 
         } catch(Exception e) {
             System.out.println("Get Data EXCEPTION!!!!");
