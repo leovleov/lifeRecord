@@ -1,7 +1,7 @@
 package cmu.sv.lifeRecord.rest;
 
 import cmu.sv.lifeRecord.models.Picture;
-import cmu.sv.lifeRecord.helpers.PATCH;
+import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.exceptions.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +35,7 @@ public class PicturesInterface {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON})
-    public ArrayList<Picture> getAll() {
+    public APPResponse getAll() {
 
         ArrayList<Picture> picList = new ArrayList<Picture>();
 
@@ -49,7 +49,7 @@ public class PicturesInterface {
                 pic.setId(item.getObjectId("_id").toString());
                 picList.add(pic);
             }
-            return picList;
+            return new APPResponse(picList);
 
         } catch(Exception e) {
             System.out.println("Get Data EXCEPTION!!!!");
@@ -62,7 +62,7 @@ public class PicturesInterface {
     @GET
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public Picture getOne(@PathParam("id") String id) {
+    public APPResponse getOne(@PathParam("id") String id) {
 
 
         BasicDBObject query = new BasicDBObject();
@@ -78,7 +78,7 @@ public class PicturesInterface {
                     item.getString("recordId")
             );
             pic.setId(item.getObjectId("_id").toString());
-            return pic;
+            return new APPResponse(pic);
 
         } catch(APPNotFoundException e) {
             throw new APPNotFoundException(0,"No such picture.");
@@ -95,7 +95,7 @@ public class PicturesInterface {
     @Path("{id}")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public Object update(@PathParam("id") String id, Object request) {
+    public APPResponse update(@PathParam("id") String id, Object request) {
         JSONObject json = null;
         try {
             json = new JSONObject(ow.writeValueAsString(request));
@@ -124,14 +124,14 @@ public class PicturesInterface {
             System.out.println("Failed to patch a document");
 
         }
-        return request;
+        return new APPResponse(request);
     }
 
 
     @DELETE
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public Object delete(@PathParam("id") String id) {
+    public APPResponse delete(@PathParam("id") String id) {
         BasicDBObject query = new BasicDBObject();
         query.put("_id", new ObjectId(id));
 
@@ -139,6 +139,6 @@ public class PicturesInterface {
         if (deleteResult.getDeletedCount() < 1)
             throw new APPNotFoundException(66,"Could not delete");
 
-        return new JSONObject();
+        return new APPResponse(new JSONObject());
     }
 }

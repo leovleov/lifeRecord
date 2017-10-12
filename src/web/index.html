@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script src="app.js">
+    </script>
+
+</head>
+<body>
+<div class="container">
+    <div class="row col-md-3 col-md-offset-1">
+        <form class="form-signin">
+            <h2 class="form-welcome-heading">Please get data</h2>
+        </form>
+        <button id="getrecords" class="btn btn-lg btn-primary btn-block" type="submit">Load</button>
+        <hr>
+        <table border="1" width="800" id="recordTable">
+            <tr align="center">
+                <td>Name</td>
+                <td>Description</td>
+                <td>Album ID</td>
+                <td>Target ID</td>
+                <td>View History ID</td>
+                <td>Like List ID</td>
+                <td>Editor List ID</td>
+            </tr>
+            <tr id="recordRow">
+                <td id="recordName"></td>
+                <td id="recordInfo"></td>
+                <td id="albumId"></td>
+                <td id="targetId"></td>
+                <td id="viewId"></td>
+                <td id="likeId"></td>
+                <td id="editorId"></td>
+            </tr>
+        </table>
+
+    </div>
+
+</div> <!-- /container -->
+
+</body>
+</html>
