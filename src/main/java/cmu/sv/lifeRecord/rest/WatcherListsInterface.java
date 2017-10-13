@@ -1,8 +1,8 @@
 package cmu.sv.lifeRecord.rest;
 
-import cmu.sv.lifeRecord.models.Picture;
-import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.exceptions.*;
+import cmu.sv.lifeRecord.helpers.*;
+import cmu.sv.lifeRecord.models.WatcherList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -21,15 +21,15 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 
-@Path("pictures")
-public class PicturesInterface {
+@Path("watcherlists")
+public class WatcherListsInterface {
     private MongoCollection<Document> collection = null;
     private ObjectWriter ow;
 
-    public PicturesInterface() {
+    public WatcherListsInterface() {
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("pictures");
+        collection = database.getCollection("watcherlists");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -37,19 +37,19 @@ public class PicturesInterface {
     @Produces({ MediaType.APPLICATION_JSON})
     public APPResponse getAll() {
 
-        ArrayList<Picture> picList = new ArrayList<Picture>();
+        ArrayList<WatcherList> watcherLists = new ArrayList<WatcherList>();
 
         try {
             FindIterable<Document> results = collection.find();
             for (Document item : results) {
-                Picture pic = new Picture(
-                        item.getString("url"),
-                        item.getString("recordId")
+                WatcherList watcherList = new WatcherList(
+                        (ArrayList<String>) item.get("usersId"),
+                        item.getString("targetId")
                 );
-                pic.setId(item.getObjectId("_id").toString());
-                picList.add(pic);
+                watcherList.setId(item.getObjectId("_id").toString());
+                watcherLists.add(watcherList);
             }
-            return new APPResponse(picList);
+            return new APPResponse(watcherLists);
 
         } catch(Exception e) {
             System.out.println("Get Data EXCEPTION!!!!");
@@ -71,17 +71,17 @@ public class PicturesInterface {
             query.put("_id", new ObjectId(id));
             Document item = collection.find(query).first();
             if (item == null) {
-                throw new APPNotFoundException(0, "No such picture, my friend.");
+                throw new APPNotFoundException(0, "No such watcher list, my friend.");
             }
-            Picture pic = new Picture(
-                    item.getString("url"),
-                    item.getString("recordId")
+            WatcherList watcherList = new WatcherList(
+                    (ArrayList<String>) item.get("usersId"),
+                    item.getString("targetId")
             );
-            pic.setId(item.getObjectId("_id").toString());
-            return new APPResponse(pic);
+            watcherList.setId(item.getObjectId("_id").toString());
+            return new APPResponse(watcherList);
 
         } catch(APPNotFoundException e) {
-            throw new APPNotFoundException(0,"No such picture.");
+            throw new APPNotFoundException(0,"No such watcher list.");
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
         }  catch(Exception e) {
@@ -89,6 +89,36 @@ public class PicturesInterface {
         }
 
 
+    }
+
+    @POST
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse create(Object request) {
+        JSONObject json = null;
+        try {
+            json = new JSONObject(ow.writeValueAsString(request));
+        }
+        catch (JsonProcessingException e) {
+            throw new APPBadRequestException(33, e.getMessage());
+        }
+        if (!json.has("usersId"))
+            throw new APPBadRequestException(55,"missing users");
+        if (!json.has("targetId"))
+            throw new APPBadRequestException(55,"missing target");
+        try {
+            Document doc = new Document();
+            doc.append("usersId", json.get("usersId"));
+            doc.append("targetId", json.getString("targetId"));
+
+            collection.insertOne(doc);
+            return new APPResponse(request);
+        } catch(JSONException e) {
+            //System.out.println("Failed to patch a document");
+            throw new APPBadRequestException(33,"Failed to post a document");
+        } catch(Exception e) {
+            throw new APPInternalServerException(99,"Something happened at server side!");
+        }
     }
 
     @PATCH
@@ -108,27 +138,24 @@ public class PicturesInterface {
 
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));
-
-            if (json.has("recordId"))
-                //doc.append("recordId",json.getString("recordId"));
-                throw new APPBadRequestException(33, "Record can't be updated.");
+            if (json.has("targetId"))
+                throw new APPBadRequestException(33, "Target can't be updated.");
 
             Document doc = new Document();
-            if (json.has("url"))
-                doc.append("url",json.getString("url"));
+            if (json.has("usersId"))
+                doc.append("usersId",json.get("usersId"));
 
             Document set = new Document("$set", doc);
             collection.updateOne(query,set);
 
         }  catch(APPBadRequestException e){
-            throw new APPBadRequestException(33, "Record can't be updated.");
+            throw new APPBadRequestException(33, "Target can't be updated.");
         } catch(JSONException e) {
             System.out.println("Failed to patch a document");
 
         }
         return new APPResponse(request);
     }
-
 
     @DELETE
     @Path("{id}")
