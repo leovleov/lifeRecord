@@ -71,7 +71,7 @@ public class WatcherListsInterface {
             query.put("_id", new ObjectId(id));
             Document item = collection.find(query).first();
             if (item == null) {
-                throw new APPNotFoundException(0, "No such watcher list, my friend.");
+                throw new APPNotFoundException(0, "No such watcher list.");
             }
             WatcherList watcherList = new WatcherList(
                     (ArrayList<String>) item.get("usersId"),
@@ -81,11 +81,11 @@ public class WatcherListsInterface {
             return new APPResponse(watcherList);
 
         } catch(APPNotFoundException e) {
-            throw new APPNotFoundException(0,"No such watcher list.");
+            throw e;
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
         }  catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
 
 
@@ -103,9 +103,9 @@ public class WatcherListsInterface {
             throw new APPBadRequestException(33, e.getMessage());
         }
         if (!json.has("usersId"))
-            throw new APPBadRequestException(55,"missing users");
+            throw new APPBadRequestException(55,"Missing users.");
         if (!json.has("targetId"))
-            throw new APPBadRequestException(55,"missing target");
+            throw new APPBadRequestException(55,"Missing target.");
         try {
             Document doc = new Document();
             doc.append("usersId", json.get("usersId"));
@@ -114,10 +114,9 @@ public class WatcherListsInterface {
             collection.insertOne(doc);
             return new APPResponse(request);
         } catch(JSONException e) {
-            //System.out.println("Failed to patch a document");
-            throw new APPBadRequestException(33,"Failed to post a document");
+            throw new APPBadRequestException(33,"Failed to post a document.");
         } catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
 
@@ -149,10 +148,11 @@ public class WatcherListsInterface {
             collection.updateOne(query,set);
 
         }  catch(APPBadRequestException e){
-            throw new APPBadRequestException(33, "Target can't be updated.");
+            throw e;
         } catch(JSONException e) {
-            System.out.println("Failed to patch a document");
-
+            System.out.println("Failed to patch a document.");
+        } catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
         return new APPResponse(request);
     }
@@ -166,8 +166,7 @@ public class WatcherListsInterface {
 
         DeleteResult deleteResult = collection.deleteOne(query);
         if (deleteResult.getDeletedCount() < 1)
-            throw new APPNotFoundException(66,"Could not delete");
-
+            throw new APPNotFoundException(66,"Could not delete watcher list.");
         return new APPResponse(new JSONObject());
     }
 }

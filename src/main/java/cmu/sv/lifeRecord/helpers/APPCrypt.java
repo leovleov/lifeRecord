@@ -8,7 +8,7 @@ import java.util.Base64;
 public class APPCrypt {
     private static final String ALGO = "AES";
     private static final byte[] keyValue =
-            new byte[]{'T', 'h', 'e', 'B', 'e', 's', 't', 'S', 'e', 'c', 'r', 'e', 't', 'K', 'e', 'y'};
+            new byte[]{'L', 'i', 'f', 'e', 'R', 'e', 'c', 'o', 'r', 'd', 'i', 's', 'G', 'o', 'o', 'd'};
 
     public static void  main(String argv[]){
         try {

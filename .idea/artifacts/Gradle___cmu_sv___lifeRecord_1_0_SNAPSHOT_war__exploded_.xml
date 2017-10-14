@@ -53,7 +53,6 @@
           <element id="library" level="project" name="Gradle: org.javassist:javassist:3.20.0-GA" />
           <element id="library" level="project" name="Gradle: javax.inject:javax.inject:1" />
           <element id="library" level="project" name="Gradle: org.glassfish.jersey.bundles.repackaged:jersey-guava:2.25" />
-          <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.7/751f548c85fa49f330cecbb1875893f971b33c4e/gson-2.7.jar" />
         </element>
       </element>
     </root>

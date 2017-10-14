@@ -78,7 +78,7 @@ public class RecordsInterface {
             query.put("_id", new ObjectId(id));
             Document item = collection.find(query).first();
             if (item == null) {
-                throw new APPNotFoundException(0, "No such record");
+                throw new APPNotFoundException(0, "No such record.");
             }
             Record record = new Record(
                     item.getString("recordName"),
@@ -92,11 +92,11 @@ public class RecordsInterface {
             record.setId(item.getObjectId("_id").toString());
             return new APPResponse(record);
         } catch(APPNotFoundException e) {
-            throw new APPNotFoundException(0,"No such record.");
+            throw e;
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
         }  catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
 
@@ -143,17 +143,6 @@ public class RecordsInterface {
         }
 
         try {
-
-            BasicDBObject query = new BasicDBObject();
-            query.put("_id", new ObjectId(id));
-
-            Document doc = new Document();
-            if (json.has("recordName"))
-                doc.append("recordName",json.getString("recordName"));
-            if (json.has("recordInfo"))
-                doc.append("recordInfo",json.getString("recordInfo"));
-            if (json.has("albumId"))
-                doc.append("albumId",json.getString("albumId"));
             if (json.has("targetId"))
                 //doc.append("targetId",json.getString("targetId"));
                 throw new APPBadRequestException(33, "Target can't be updated.");
@@ -166,16 +155,27 @@ public class RecordsInterface {
             if (json.has("editorId"))
                 //doc.append("editorId",json.getString("editorId"));
                 throw new APPBadRequestException(33, "Editor can't be updated.");
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
+
+            Document doc = new Document();
+            if (json.has("recordName"))
+                doc.append("recordName",json.getString("recordName"));
+            if (json.has("recordInfo"))
+                doc.append("recordInfo",json.getString("recordInfo"));
+            if (json.has("albumId"))
+                doc.append("albumId",json.getString("albumId"));
+
             Document set = new Document("$set", doc);
             collection.updateOne(query,set);
 
         } catch(APPBadRequestException e){
-            throw new APPBadRequestException(33, "Some parameters can't be updated.");
+            throw e;
         } catch(JSONException e) {
-            //System.out.println("Failed to patch a document");
-            throw new APPBadRequestException(33,"Failed to patch a document");
+            throw new APPBadRequestException(33,"Failed to patch a document.");
         } catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
         return new APPResponse(request);
     }
@@ -190,7 +190,7 @@ public class RecordsInterface {
 
         DeleteResult deleteResult = collection.deleteOne(query);
         if (deleteResult.getDeletedCount() < 1)
-            throw new APPNotFoundException(66,"Could not delete");
+            throw new APPNotFoundException(66,"Could not delete the record.");
 
         return new APPResponse(new JSONObject());
     }
@@ -230,10 +230,9 @@ public class RecordsInterface {
             collection.insertOne(doc);
             return new APPResponse(request);
         } catch(JSONException e) {
-            //System.out.println("Failed to patch a document");
-            throw new APPBadRequestException(33,"Failed to post a document");
+            throw new APPBadRequestException(33,"Failed to post a document.");
         } catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
 
@@ -259,10 +258,9 @@ public class RecordsInterface {
             picCollection.insertOne(doc);
             return new APPResponse(request);
         } catch(JSONException e) {
-            //System.out.println("Failed to patch a document");
-            throw new APPBadRequestException(33,"Failed to post a document");
+            throw new APPBadRequestException(33,"Failed to post a document.");
         } catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
 }

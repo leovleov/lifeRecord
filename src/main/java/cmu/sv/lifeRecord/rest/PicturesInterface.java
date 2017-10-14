@@ -71,7 +71,7 @@ public class PicturesInterface {
             query.put("_id", new ObjectId(id));
             Document item = collection.find(query).first();
             if (item == null) {
-                throw new APPNotFoundException(0, "No such picture, my friend.");
+                throw new APPNotFoundException(0, "No such picture.");
             }
             Picture pic = new Picture(
                     item.getString("url"),
@@ -81,11 +81,11 @@ public class PicturesInterface {
             return new APPResponse(pic);
 
         } catch(APPNotFoundException e) {
-            throw new APPNotFoundException(0,"No such picture.");
+            throw e;
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
         }  catch(Exception e) {
-            throw new APPInternalServerException(99,"Something happened at server side!");
+            throw new APPInternalServerException(99,"Unexpected error!");
         }
 
 
@@ -106,12 +106,12 @@ public class PicturesInterface {
 
         try {
 
-            BasicDBObject query = new BasicDBObject();
-            query.put("_id", new ObjectId(id));
-
             if (json.has("recordId"))
                 //doc.append("recordId",json.getString("recordId"));
                 throw new APPBadRequestException(33, "Record can't be updated.");
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
 
             Document doc = new Document();
             if (json.has("url"))
@@ -121,7 +121,7 @@ public class PicturesInterface {
             collection.updateOne(query,set);
 
         }  catch(APPBadRequestException e){
-            throw new APPBadRequestException(33, "Record can't be updated.");
+            throw e;
         } catch(JSONException e) {
             System.out.println("Failed to patch a document");
 
