@@ -20,12 +20,13 @@
 </head>
 <body>
 <div class="container">
-    <div class="row col-md-7 col-md-offset-1">
+    <div class="row col-md-8 col-md-offset-1">
 
-        <h2 class="form-welcome-heading">Please click button to get data "Records"</h2>
+        <h2 class="form-welcome-heading">Please click button to get "Records" and "Pictures"</h2>
 
         <button id="getrecords" class="btn btn-lg btn-primary btn-block" type="submit">Load</button>
         <hr>
+
         <table border="1" width="800" id="recordTable">
             <tr align="center">
                 <td>Name</td>
@@ -46,7 +47,23 @@
                 <td id="editorId"></td>
             </tr>
         </table>
-
+        <hr>
+        <p>
+            <button id="previous">Previous</button>&nbsp;&nbsp;
+            <button id="next">Next</button>
+            <span id="page"></span>
+        </p>
+        <hr>
+        <table border="1" width="800" id="picTable">
+            <tr align="center">
+                <td>Record ID</td>
+                <td>URL</td>
+            </tr>
+            <tr id="picRow">
+                <td id="recordId"></td>
+                <td id="url"></td>
+            </tr>
+        </table>
     </div>
 
 </div> <!-- /container -->
