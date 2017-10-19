@@ -19,8 +19,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Path("records")
 public class RecordsInterface {
@@ -103,15 +107,26 @@ public class RecordsInterface {
     @GET
     @Path("{id}/pictures")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getPicturesForRecord(@PathParam("id") String id) {
+    public APPListResponse getPicturesForRecord(@Context HttpHeaders headers, @PathParam("id") String id,
+                                                @DefaultValue("_id") @QueryParam("sort") String sortArg,
+                                                @DefaultValue("20") @QueryParam("count") int count,
+                                                @DefaultValue("0") @QueryParam("offset") int offset) {
 
         ArrayList<Picture> picList = new ArrayList<Picture>();
 
         try {
+            //checkAuthentication(headers,id);
+            BasicDBObject sortParams = new BasicDBObject();
+            List<String> sortList = Arrays.asList(sortArg.split(","));
+            sortList.forEach(sortItem -> {
+                sortParams.put(sortItem,1);
+            });
+
             BasicDBObject query = new BasicDBObject();
             query.put("recordId", id);
 
-            FindIterable<Document> results = picCollection.find(query);
+            long resultCount = picCollection.count(query);
+            FindIterable<Document> results = picCollection.find(query).sort(sortParams).skip(offset).limit(count);
             for (Document item : results) {
                 Picture pic = new Picture(
                         item.getString("url"),
@@ -120,7 +135,7 @@ public class RecordsInterface {
                 pic.setId(item.getObjectId("_id").toString());
                 picList.add(pic);
             }
-            return new APPResponse(picList);
+            return new APPListResponse(picList,resultCount,offset, picList.size());
 
         } catch(Exception e) {
             System.out.println("Get data EXCEPTION!!!!");
@@ -261,6 +276,17 @@ public class RecordsInterface {
             throw new APPBadRequestException(33,"Failed to post a document.");
         } catch(Exception e) {
             throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    void checkAuthentication(HttpHeaders headers,String id) throws Exception{
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70,"No Authorization Headers");
+        String token = authHeaders.get(0);
+        String clearToken = APPCrypt.decrypt(token);
+        if (id.compareTo(clearToken) != 0) {
+            throw new APPUnauthorizedException(71,"Invalid token. Please try getting a new token");
         }
     }
 }
