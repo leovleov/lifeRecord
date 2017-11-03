@@ -134,6 +134,7 @@ public class RecordsInterface {
                 );
                 pic.setId(item.getObjectId("_id").toString());
                 picList.add(pic);
+
             }
             return new APPListResponse(picList,resultCount,offset, picList.size());
 
