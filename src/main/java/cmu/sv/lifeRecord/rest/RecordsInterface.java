@@ -22,8 +22,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Path("records")
@@ -53,14 +55,15 @@ public class RecordsInterface {
                 return new APPResponse(recordList);
             }
             for (Document item : results) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Record record = new Record(
                         item.getString("recordName"),
                         item.getString("recordInfo"),
                         item.getString("albumId"),
                         item.getString("targetId"),
-                        item.getString("viewId"),
-                        item.getString("likeId"),
-                        item.getString("editorId")
+                        item.getString("userId"),
+                        sdf.format(item.getDate("createDate")),
+                        sdf.format(item.getDate("updateDate"))
                 );
                 record.setId(item.getObjectId("_id").toString());
                 recordList.add(record);
@@ -76,7 +79,7 @@ public class RecordsInterface {
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getOne(@PathParam("id") String id) {
+    public APPResponse getOne(@Context HttpHeaders headers, @PathParam("id") String id) {
         BasicDBObject query = new BasicDBObject();
         try {
             query.put("_id", new ObjectId(id));
@@ -84,18 +87,22 @@ public class RecordsInterface {
             if (item == null) {
                 throw new APPNotFoundException(0, "No such record.");
             }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Record record = new Record(
                     item.getString("recordName"),
                     item.getString("recordInfo"),
                     item.getString("albumId"),
                     item.getString("targetId"),
-                    item.getString("viewId"),
-                    item.getString("likeId"),
-                    item.getString("editorId")
+                    item.getString("userId"),
+                    sdf.format(item.getDate("createDate")),
+                    sdf.format(item.getDate("updateDate"))
             );
             record.setId(item.getObjectId("_id").toString());
+            AuthCheck.checkWatcherAuthentication(headers,item.getString("targetId"));
             return new APPResponse(record);
         } catch(APPNotFoundException e) {
+            throw e;
+        } catch(APPUnauthorizedException e) {
             throw e;
         } catch(IllegalArgumentException e) {
             throw new APPBadRequestException(45,"Unacceptable ID.");
@@ -228,20 +235,18 @@ public class RecordsInterface {
             throw new APPBadRequestException(55,"missing info");
         if (!json.has("targetId"))
             throw new APPBadRequestException(55,"missing target");
-        if (!json.has("editorId"))
-            throw new APPBadRequestException(55,"missing editor");
+        if (!json.has("userId"))
+            throw new APPBadRequestException(55,"missing user");
         try {
             Document doc = new Document();
             doc.append("recordName", json.getString("recordName"));
             doc.append("recordInfo", json.getString("recordInfo"));
             doc.append("targetId", json.getString("targetId"));
-            doc.append("editorId", json.getString("editorId"));
+            doc.append("userId", json.getString("userId"));
             if (json.has("albumId"))
                 doc.append("albumId", json.getString("albumId"));
-            if (json.has("viewId"))
-                doc.append("viewId", json.getString("viewId"));
-            if (json.has("likeId"))
-                doc.append("likeId", json.getString("likeId"));
+            doc.append("createDate", new Date());
+            doc.append("updateDate", new Date());
 
             collection.insertOne(doc);
             return new APPResponse(request);
