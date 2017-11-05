@@ -1,7 +1,5 @@
 package cmu.sv.lifeRecord.models;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public class WatcherList {

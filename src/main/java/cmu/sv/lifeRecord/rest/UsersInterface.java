@@ -1,5 +1,7 @@
 package cmu.sv.lifeRecord.rest;
 
+import cmu.sv.lifeRecord.models.SimpleUser;
+import cmu.sv.lifeRecord.models.Target;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -8,6 +10,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.exceptions.*;
@@ -23,11 +26,12 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Path("users")
 public class UsersInterface {
     private MongoCollection<Document> userCollection;
-    private MongoCollection<Document> adminCollection;
+    private MongoCollection<Document> targetCollection;
     private ObjectWriter ow;
 
 
@@ -36,7 +40,7 @@ public class UsersInterface {
         MongoDatabase database = mongoClient.getDatabase("liferecord");
 
         this.userCollection = database.getCollection("users");
-        this.adminCollection = database.getCollection("admins");
+        this.targetCollection = database.getCollection("targets");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
@@ -96,6 +100,91 @@ public class UsersInterface {
             );
             user.setId(item.getObjectId("_id").toString());
             return new APPResponse(user);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/targets")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getOnesTargets(@Context HttpHeaders headers, @PathParam("id") String id) {
+        ArrayList<Target> targetList = new ArrayList<>();
+        try {
+            AuthCheck.checkOwnAuthentication(headers,id);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("creatorId", id);
+            FindIterable<Document> results = targetCollection.find(query);
+            if (results == null) {
+                return new APPResponse(targetList);
+            }
+            for (Document item : results) {
+                Target target = new Target(
+                        item.getString("targetName"),
+                        item.getString("targetInfo"),
+                        item.getString("creatorId")
+                );
+                target.setId(item.getObjectId("_id").toString());
+                targetList.add(target);
+            }
+            return new APPResponse(targetList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    private BasicDBObject getLikeStr(String findStr) {
+        Pattern pattern = Pattern.compile("^.*" + findStr + ".*$", Pattern.CASE_INSENSITIVE);
+        return new BasicDBObject("$regex", pattern);
+    }
+
+    @GET
+    @Path("findUsers/{name}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse findUsers(@Context HttpHeaders headers, @PathParam("name") String name) {
+        ArrayList<SimpleUser> userList = new ArrayList();
+        try {
+            AuthCheck.checkAnyAuthentication(headers);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("firstName", getLikeStr(name));
+            FindIterable<Document> results = userCollection.find(query).limit(10);
+            if (results == null) {
+                return new APPResponse(userList);
+            }
+            for (Document item : results) {
+                SimpleUser user = new SimpleUser(
+                        item.getString("firstName"),
+                        item.getString("lastName"),
+                        item.getString("nickName")
+                );
+                user.setId(item.getObjectId("_id").toString());
+                userList.add(user);
+            }
+            return new APPResponse(userList);
 
         }
         catch(APPNotFoundException e) {
@@ -204,4 +293,27 @@ public class UsersInterface {
     }
 
 
+    @DELETE
+    @Path("{id}")
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            AuthCheck.checkAdminAuthentication(headers);
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
+
+            DeleteResult deleteResult = userCollection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete the record.");
+
+            return new APPResponse(new JSONObject());
+
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
+    }
 }
