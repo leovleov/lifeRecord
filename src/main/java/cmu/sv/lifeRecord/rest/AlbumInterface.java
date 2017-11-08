@@ -109,7 +109,7 @@ public class AlbumInterface {
             throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
-
+/*
     @POST
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
@@ -148,7 +148,7 @@ public class AlbumInterface {
             throw new APPInternalServerException(99, "Unexpected error!");
         }
     }
-
+*/
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
