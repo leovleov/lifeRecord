@@ -91,9 +91,10 @@ public class AlbumInterface {
                         item.getString("albumDate")
                 );
             album.setId(item.getObjectId("_id").toString());
-            return new APPResponse(album);
 
             AuthCheck.checkEditorAuthentication(headers, album.getTargetId(), false);
+            return new APPResponse(album);
+
         }
         catch(APPNotFoundException e) {
             throw e;
