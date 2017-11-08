@@ -25,6 +25,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 @Path("albums")
@@ -36,7 +37,7 @@ public class AlbumInterface {
     public AlbumInterface() {
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("albums");
+        albumCollection = database.getCollection("albums");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -76,23 +77,22 @@ public class AlbumInterface {
     @Produces({MediaType.APPLICATION_JSON})
     public APPResponse getOne(@Context HttpHeaders headers, @PathParam("id") String id) {
         try {
-            //AuthCheck.checkOwnAuthentication(headers,id);
-            //AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
             BasicDBObject query = new BasicDBObject();
 
             query.put("_id", new ObjectId(id));
             Document item = albumCollection.find(query).first();
             if (item == null) {
-                throw new APPNotFoundException(0, "No such user.");
+                throw new APPNotFoundException(0, "No such album.");
             }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Album album = new Album(
                         item.getString("targetId"),
                         item.getString("albumName"),
-                        item.getString("albumDate")
+                        sdf.format(item.getDate("albumDate"))
                 );
             album.setId(item.getObjectId("_id").toString());
 
-            AuthCheck.checkEditorAuthentication(headers, album.getTargetId(), false);
+            AuthCheck.checkEditorOrWatcherAuthentication(headers, album.getTargetId());
             return new APPResponse(album);
 
         }
