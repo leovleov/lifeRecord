@@ -52,9 +52,7 @@ public class WatcherInterface {
             throw new APPBadRequestException(55,"Missing target.");
 
         try {
-            //checkWatcherAuthentication(HttpHeaders headers, String targetId)
             AuthCheck.checkWatcherAuthentication(headers, json.getString("targetId"));
-            //AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), false);
             Document doc = new Document();
             doc.append("userId", json.getString("userId"));
             doc.append("targetId", json.getString("targetId"));
@@ -86,7 +84,6 @@ public class WatcherInterface {
                 throw new APPBadRequestException(55,"Missing target.");
 
             AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"),false);
-            //AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
             BasicDBObject query = new BasicDBObject();
             query.put("targetId", json.getString("targetId"));
             query.put("userId", json.getString("userId"));
