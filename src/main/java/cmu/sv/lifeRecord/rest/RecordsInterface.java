@@ -245,6 +245,8 @@ public class RecordsInterface {
             doc.append("userId", json.getString("userId"));
             if (json.has("albumId"))
                 doc.append("albumId", json.getString("albumId"));
+            else
+                doc.append("albumId", "");
             doc.append("createDate", new Date());
             doc.append("updateDate", new Date());
 

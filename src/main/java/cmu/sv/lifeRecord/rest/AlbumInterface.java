@@ -18,6 +18,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
@@ -29,10 +30,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static com.mongodb.client.model.Filters.eq;
 
 @Path("albums")
 public class AlbumInterface {
-    private MongoCollection<Document> collection = null;
+    private MongoCollection<Document> recordCollection = null;
     private MongoCollection<Document> albumCollection;
     private ObjectWriter ow;
 
@@ -40,6 +44,7 @@ public class AlbumInterface {
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         albumCollection = database.getCollection("albums");
+        recordCollection = database.getCollection("records");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -90,22 +95,19 @@ public class AlbumInterface {
         JSONObject json = null;
 
         try {
-            AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
-            json = new JSONObject(ow.writeValueAsString(request));
-
-//            if (json.has("emailAddress"))
-//                throw new APPBadRequestException(33, "Email address can't be updated.");
-
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));
+            Document itemCheck = albumCollection.find(query).first();
+            AuthCheck.checkEditorAuthentication(headers, itemCheck.getString("targetId"), false);
+
+            json = new JSONObject(ow.writeValueAsString(request));
+            if (json.has("targetId"))
+                throw new APPBadRequestException(33, "target can't be updated.");
 
             Document doc = new Document();
-            if (json.has("targetId"))
-                doc.append("targetId",json.getString("targetId"));
             if (json.has("albumName"))
                 doc.append("albumName",json.getString("albumName"));
-            if (json.has("albumDate"))
-                doc.append("albumDate",json.getString("albumDate"));
+            doc.append("albumDate", new Date());
 
             Document set = new Document("$set", doc);
             albumCollection.updateOne(query,set);
@@ -126,29 +128,28 @@ public class AlbumInterface {
     }
 
     @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON})
+    @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse delete(@Context HttpHeaders headers,  Object request) {
-        JSONObject json = null;
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
         try {
-            json = new JSONObject(ow.writeValueAsString(request));
-
-
-            if (!json.has("targetId"))
-                throw new APPBadRequestException(55,"Missing target.");
-
-            AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
             BasicDBObject query = new BasicDBObject();
-            query.put("targetId", json.getString("targetId"));
-            query.put("albumName", json.getString("albumName"));
-            query.put("albumDate", json.getString("albumDate"));
-            DeleteResult deleteResult = collection.deleteOne(query);
+            query.put("_id", new ObjectId(id));
+            Document itemCheck = albumCollection.find(query).first();
+            AuthCheck.checkEditorAuthentication(headers, itemCheck.getString("targetId"), false);
+
+            BasicDBObject query2 = new BasicDBObject();
+            query2.put("albumId", id);
+            Document doc = new Document();
+            doc.append("albumId", "");
+            Document set = new Document("$set", doc);
+            recordCollection.updateMany(query2, set);
+
+            DeleteResult deleteResult = albumCollection.deleteOne(query);
             if (deleteResult.getDeletedCount() < 1)
-                throw new APPNotFoundException(66, "Could not delete editor.");
+                throw new APPNotFoundException(66, "Could not delete the record.");
+
             return new APPResponse(new JSONObject());
 
-        } catch (JsonProcessingException e) {
-            throw new APPBadRequestException(33, "Failed to parse the data.");
         } catch(APPUnauthorizedException e) {
             throw e;
         } catch (APPNotFoundException e) {
