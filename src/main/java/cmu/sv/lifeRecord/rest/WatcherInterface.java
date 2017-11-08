@@ -85,7 +85,7 @@ public class WatcherInterface {
             if (!json.has("targetId"))
                 throw new APPBadRequestException(55,"Missing target.");
 
-            AuthCheck.checkWatcherAuthentication(headers, json.getString("targetId"));
+            AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"),false);
             //AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
             BasicDBObject query = new BasicDBObject();
             query.put("targetId", json.getString("targetId"));

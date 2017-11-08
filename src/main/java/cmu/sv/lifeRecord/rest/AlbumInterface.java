@@ -40,36 +40,6 @@ public class AlbumInterface {
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
-//    @GET
-//    @Produces({ MediaType.APPLICATION_JSON})
-//    public APPResponse getAll(@Context HttpHeaders headers) {
-//        ArrayList<Album> albumList = new ArrayList<Album>();
-//        try {
-//            AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), true);
-//            FindIterable<Document> results = albumCollection.find();
-//            if (results == null) {
-//                return new APPResponse(albumList);
-//            }
-//            for (Document item : results) {
-//                Album album = new Album(
-//                        item.getString("targetId"),
-//                        item.getString("albumName"),
-//                        item.getString("albumDate")
-////                        item.getString("phoneNumber"),
-////                        item.getString("emailAddress")
-//                );
-//                album.setId(item.getObjectId("_id").toString());
-//                albumList.add(album);
-//            }
-//            return new APPResponse(albumList);
-//        }
-//        catch(APPUnauthorizedException e) {
-//            throw e;
-//        }
-//        catch(Exception e) {
-//            throw new APPInternalServerException(99,"Unexpected error!");
-//        }
-//    }
 
     @GET
     @Path("{id}")
