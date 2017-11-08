@@ -124,11 +124,11 @@ public class AuthCheck {
     //The user in the watcher list and admin can pass
     public static void checkWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
         MongoCollection<Document> adminCollection;
-        MongoCollection<Document> editorCollection;
+        MongoCollection<Document> watcherCollection;
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         adminCollection = database.getCollection("admins");
-        editorCollection = database.getCollection("watchers");
+        watcherCollection = database.getCollection("watchers");
 
         List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
         if (authHeaders == null)
@@ -145,8 +145,45 @@ public class AuthCheck {
         BasicDBObject query2 = new BasicDBObject();
         query2.put("userId", clearToken);
         query2.put("targetId", targetId);
-        Document item2 = editorCollection.find(query2).first();
+        Document item2 = watcherCollection.find(query2).first();
         if (item2 != null){
+            return;
+        }
+        else{
+            throw new APPUnauthorizedException(71, "Authorization fail!");
+        }
+
+    }
+
+    //The user in the editor or watcher list, and admin can pass
+    public static void checkEditorOrWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
+        MongoCollection<Document> adminCollection;
+        MongoCollection<Document> watcherCollection;
+        MongoCollection<Document> editorCollection;
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase database = mongoClient.getDatabase("liferecord");
+        adminCollection = database.getCollection("admins");
+        editorCollection = database.getCollection("editors");
+        watcherCollection = database.getCollection("watchers");
+
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+        String token = authHeaders.get(0);
+        String clearToken = APPCrypt.decrypt(token);
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("userId", clearToken);
+        Document item = adminCollection.find(query).first();
+        if (item != null) {     //This user is an administrator
+            return;
+        }
+        BasicDBObject query2 = new BasicDBObject();
+        query2.put("userId", clearToken);
+        query2.put("targetId", targetId);
+        Document item2 = watcherCollection.find(query2).first();
+        Document item3 = editorCollection.find(query2).first();
+        if (item2 != null || item3 != null){
             return;
         }
         else{
