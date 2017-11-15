@@ -56,7 +56,6 @@ public class WatcherInterface {
             Document doc = new Document();
             doc.append("userId", json.getString("userId"));
             doc.append("targetId", json.getString("targetId"));
-            //doc.append("isCreator", false);
             collection.insertOne(doc);
             return new APPResponse(request);
         } catch (JsonProcessingException e) {
