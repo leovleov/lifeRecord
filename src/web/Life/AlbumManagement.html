@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Album Management</title>
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <script src="album.js"></script>
+    <style type="text/css">
+        .navbar-fixed-left {
+            width: 140px;
+            position: fixed;
+            border-radius: 0;
+            height: 100%;
+        }
+
+        .navbar-fixed-left .navbar-nav > li {
+            float: none;  /* Cancel default li float: left */
+            width: 139px;
+        }
+
+        .navbar-fixed-left + .container {
+            padding-left: 160px;
+        }
+
+        /* On using dropdown menu (To right shift popuped) */
+        .navbar-fixed-left .navbar-nav > li > .dropdown-menu {
+            margin-top: -50px;
+            margin-left: 140px;
+        }
+        /*.posters-list {*/
+            /*font-size: 0;*/
+            /*letter-spacing: -1px;*/
+            /*text-align: left;*/
+            /*margin-top: 10px;*/
+        /*}*/
+        /*.list-inline {*/
+            /*margin-left: -5px;*/
+        /*}*/
+        /*.list-inline, .list-unstyled {*/
+            /*padding-left: 0;*/
+            /*list-style: none;*/
+        /*}*/
+
+    </style>
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-left">
+    <a class="navbar-brand" href="#">Life Record</a>
+
+    <ul class="nav navbar-nav" style="margin-top: 20px">
+        <li><a href="AlbumManagement.html" align="center">Albums</a></li>
+        <li><a href="EditorsList.html" align="center">Editors</a></li>
+        <li><a href="WatchersList.html" align="center">Watchers</a></li>
+        <!--<li><a href="../calendar/calendar.html" align="center">Calendar</a></li>-->
+        <!--<li><a href="../favorite/favorite.html" align="center">Favorite</a></li>-->
+        <!--<li><a href="../news/news.html" align="center">News</a></li>-->
+        <!--<li><a href="../profile/profile.html" align="center">Profile</a></li>-->
+    </ul>
+</div>
+<div class="container">
+    <div>
+        <h1 class="text-primary" align="center">Album Management</h1>
+    </div>
+    <hr />
+    <ul class="to-watch-list posters-list list-unstyled list-inline single-row" id="albumList"></ul>
+
+    <div    >
+        <button id="addAlbum" class="btn btn-info col-sm-offset-2 col-sm-1" type="submit">Add</button>
+        <button id="deleteAlbum" class="btn btn-info col-sm-offset-1 col-sm-1" type="submit">Delete</button>
+    </div>
+    <!--<div>-->
+        <!--<input type="button" value="DELETE"/>-->
+    <!--</div>-->
+</div>
+</body>
+</html>
