@@ -26,27 +26,16 @@ $(function() {
             userId = data.content.userId;
             localStorage.setItem("token", token);
             localStorage.setItem("userId", userId);
-            // $.ajax({
-            //     url:  "/rest/admins/"+localStorage.getItem("userId"),
-            //     type: "GET",
-            //     async: false,
-            //     beforeSend: function (xhr) {
-            //         xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
-            //     }
-            // }).done(function(data){
-            //     if(data.content == null){
-            //         localStorage.setItem("isAdmin",false);
-            //     }else{
-            //         localStorage.setItem("isAdmin",true);
-            //     }
-            // }).fail(function(data){
-            //     localStorage.setItem("isAdmin",false);
-            // })
             location.href = "Life/AlbumManagement.html"
         }).fail(function(data){
             $("#greeting").text("Authentication Fail ! You might want to try it again!");
             $("#greeting").show();
         })
+    })
+
+    $("#signup").click(function (e) {
+        e.preventDefault();
+        location.href = "Life/SignUp.html"
     })
 //
 //     $("#loadcontent").click(function (e) {

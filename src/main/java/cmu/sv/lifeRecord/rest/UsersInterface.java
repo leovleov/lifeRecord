@@ -2,6 +2,7 @@ package cmu.sv.lifeRecord.rest;
 
 import cmu.sv.lifeRecord.models.SimpleUser;
 import cmu.sv.lifeRecord.models.Target;
+import cmu.sv.lifeRecord.models.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -233,7 +234,26 @@ public class UsersInterface {
             if(json.has("phoneNumber"))
                 doc.append("phoneNumber", json.getString("phoneNumber"));
             userCollection.insertOne(doc);
-            return new APPResponse(request);
+
+            BasicDBObject query2 = new BasicDBObject();
+
+            query2.put("emailAddress", json.getString("emailAddress"));
+            query2.put("password", APPCrypt.encrypt(json.getString("password")));
+            Document item2 = userCollection.find(query2).first();
+            if (item2 == null) {
+                throw new APPNotFoundException(0, "No user found matching credentials.");
+            }
+            User user = new User(
+                    item2.getString("firstName"),
+                    item2.getString("lastName"),
+                    item2.getString("nickName"),
+                    item2.getString("phoneNumber"),
+                    item2.getString("emailAddress")
+            );
+            user.setId(item2.getObjectId("_id").toString());
+            APPResponse r = new APPResponse(new Token(user));
+            return r;
+
         } catch (JsonProcessingException e) {
             throw new APPBadRequestException(33, e.getMessage());
         } catch(APPUnauthorizedException e) {
