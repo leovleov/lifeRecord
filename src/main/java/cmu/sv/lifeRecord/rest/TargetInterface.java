@@ -7,10 +7,7 @@ import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
 import cmu.sv.lifeRecord.helpers.APPCrypt;
 import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
-import cmu.sv.lifeRecord.models.Album;
-import cmu.sv.lifeRecord.models.Target;
-import cmu.sv.lifeRecord.models.Token;
-import cmu.sv.lifeRecord.models.User;
+import cmu.sv.lifeRecord.models.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -39,6 +36,7 @@ public class TargetInterface {
     private MongoCollection<Document> targetCollection;
     private MongoCollection<Document> editorCollection;
     private MongoCollection<Document> watcherCollection;
+    private MongoCollection<Document> userCollection;
     private ObjectWriter ow;
 
 
@@ -50,6 +48,7 @@ public class TargetInterface {
         this.targetCollection = database.getCollection("targets");
         this.editorCollection = database.getCollection("editors");
         this.watcherCollection = database.getCollection("watchers");
+        this.userCollection = database.getCollection("users");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
@@ -93,7 +92,7 @@ public class TargetInterface {
     @GET
     @Path("{id}/albums")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getOneAlbum(@Context HttpHeaders headers, @PathParam("id") String id) {
+    public APPResponse getTargetAlbums(@Context HttpHeaders headers, @PathParam("id") String id) {
         ArrayList<Album> albumList = new ArrayList<>();
         try {
             AuthCheck.checkEditorAuthentication(headers,id,false);
@@ -115,6 +114,106 @@ public class TargetInterface {
                 albumList.add(album);
             }
             return new APPResponse(albumList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/editors")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getTargetEditors(@Context HttpHeaders headers, @PathParam("id") String id) {
+        ArrayList<User> userList = new ArrayList<>();
+        try {
+            AuthCheck.checkEditorAuthentication(headers,id,false);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("targetId", id);
+            FindIterable<Document> results = editorCollection.find(query);
+            if (results == null) {
+                return new APPResponse(userList);
+            }
+
+            for (Document item : results) {
+                BasicDBObject query2 = new BasicDBObject();
+
+                query2.put("_id", new ObjectId(item.getString("userId")));
+                Document item2 = userCollection.find(query2).first();
+                if (item2 == null) {
+                    throw new APPNotFoundException(0, "No such user.");
+                }
+                User user = new User(
+                        item2.getString("firstName"),
+                        item2.getString("lastName"),
+                        item2.getString("nickName"),
+                        item2.getString("phoneNumber"),
+                        item2.getString("emailAddress")
+                );
+                user.setId(item2.getObjectId("_id").toString());
+                userList.add(user);
+            }
+            return new APPResponse(userList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/watchers")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getTargetWatchers(@Context HttpHeaders headers, @PathParam("id") String id) {
+        ArrayList<User> userList = new ArrayList<>();
+        try {
+            AuthCheck.checkEditorAuthentication(headers,id,false);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("targetId", id);
+            FindIterable<Document> results = watcherCollection.find(query);
+            if (results == null) {
+                return new APPResponse(userList);
+            }
+
+            for (Document item : results) {
+                BasicDBObject query2 = new BasicDBObject();
+
+                query2.put("_id", new ObjectId(item.getString("userId")));
+                Document item2 = userCollection.find(query2).first();
+                if (item2 == null) {
+                    throw new APPNotFoundException(0, "No such user.");
+                }
+                User user = new User(
+                        item2.getString("firstName"),
+                        item2.getString("lastName"),
+                        item2.getString("nickName"),
+                        item2.getString("phoneNumber"),
+                        item2.getString("emailAddress")
+                );
+                user.setId(item2.getObjectId("_id").toString());
+                userList.add(user);
+            }
+            return new APPResponse(userList);
 
         }
         catch(APPNotFoundException e) {
