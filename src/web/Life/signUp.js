@@ -26,4 +26,9 @@ $(function() {
         })
     })
 
+    $("#cancel").click(function (e) {
+        e.preventDefault();
+        location.href = "../"
+    })
+
 })

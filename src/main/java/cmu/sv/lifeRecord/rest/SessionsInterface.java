@@ -62,7 +62,8 @@ public class SessionsInterface {
                     item.getString("lastName"),
                     item.getString("nickName"),
                     item.getString("phoneNumber"),
-                    item.getString("emailAddress")
+                    item.getString("emailAddress"),
+                    item.getBoolean("isAdmin")
             );
             user.setId(item.getObjectId("_id").toString());
             APPResponse r = new APPResponse(new Token(user));
