@@ -1,7 +1,6 @@
 $(function() {
     var token = localStorage.getItem("token");
     var userId = localStorage.getItem("userId");
-    var select = document.getElementById('userIdSelect');
     var select = document.getElementById('targetIdSelect');
 
     $("#greeting").hide();
