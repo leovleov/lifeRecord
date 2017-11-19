@@ -12,8 +12,8 @@
             crossorigin="anonymous"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           rel="stylesheet">
-    <script src="addEditor.js"></script>
-    <style type="text/css">
+    <script src="addWatcher.js"></script>
+    <!--<style type="text/css">
         .navbar-fixed-left {
             width: 140px;
             position: fixed;
@@ -49,7 +49,7 @@
         list-style: none;
         }
 
-    </style>
+    </style> -->
 </head>
 <body>
 <div class="navbar navbar-inverse navbar-fixed-left">
@@ -74,22 +74,22 @@
                 <!--<label class="col-form-label" for="albumName">Album Name</label>-->
                 <!--<input type="text" class="form-control" id="albumName" placeholder="ex: Travel">-->
 
+                <label class="mr-sm-2" for="targetIdSelect">Target Name</label>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" onchange="targetChange()" id="targetIdSelect">
+                    <option selected>Choose...</option>
+                </select>
+                <br>
+                <small id="targetDescription" class="form-text text-muted">Please choose the target to add watcher.</small>
+
+                <br>
+                <br>
+
                 <label class="mr-sm-2" for="userIdSelect">Watcher Name</label>
                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="userIdSelect">
                     <option selected>Choose...</option>
                 </select>
                 <br>
-                <small id="editorDescription" class="form-text text-muted">Please choose the watcher who you want to add.</small>
-
-                <br>
-                <br>
-
-                <label class="mr-sm-2" for="targetIdSelect">Target Name</label>
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetIdSelect">
-                    <option selected>Choose...</option>
-                </select>
-                <br>
-                <small id="targetDescription" class="form-text text-muted">Please choose the target for this watcher.</small>
+                <small id="watcherDescription" class="form-text text-muted">Please choose the watcher who you want to add.</small>
             </div>
         </form>
 
