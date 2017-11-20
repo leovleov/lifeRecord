@@ -51,7 +51,7 @@ public class UsersInterface {
     public APPResponse getAll(@Context HttpHeaders headers) {
         ArrayList<User> userList = new ArrayList<User>();
         try {
-            AuthCheck.checkAdminAuthentication(headers);
+            //AuthCheck.checkAdminAuthentication(headers);
             FindIterable<Document> results = userCollection.find();
             if (results == null) {
                 return new APPResponse(userList);
@@ -62,7 +62,8 @@ public class UsersInterface {
                         item.getString("lastName"),
                         item.getString("nickName"),
                         item.getString("phoneNumber"),
-                        item.getString("emailAddress")
+                        item.getString("emailAddress"),
+                        item.getBoolean("isAdmin")
                 );
                 user.setId(item.getObjectId("_id").toString());
                 userList.add(user);
@@ -97,7 +98,8 @@ public class UsersInterface {
                     item.getString("lastName"),
                     item.getString("nickName"),
                     item.getString("phoneNumber"),
-                    item.getString("emailAddress")
+                    item.getString("emailAddress"),
+                    item.getBoolean("isAdmin")
             );
             user.setId(item.getObjectId("_id").toString());
             return new APPResponse(user);
@@ -233,6 +235,7 @@ public class UsersInterface {
                 doc.append("nickName", json.getString("nickName"));
             if(json.has("phoneNumber"))
                 doc.append("phoneNumber", json.getString("phoneNumber"));
+            doc.append("idAdmin", false);
             userCollection.insertOne(doc);
 
             BasicDBObject query2 = new BasicDBObject();
@@ -248,7 +251,8 @@ public class UsersInterface {
                     item2.getString("lastName"),
                     item2.getString("nickName"),
                     item2.getString("phoneNumber"),
-                    item2.getString("emailAddress")
+                    item2.getString("emailAddress"),
+                    item2.getBoolean("isAdmin")
             );
             user.setId(item2.getObjectId("_id").toString());
             APPResponse r = new APPResponse(new Token(user));

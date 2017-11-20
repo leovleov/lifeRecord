@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Album</title>
+    <title>Add Editor</title>
     <script
             src="https://code.jquery.com/jquery-3.2.1.min.js"
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -12,7 +12,7 @@
             crossorigin="anonymous"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           rel="stylesheet">
-    <script src="addAlbum.js"></script>
+    <script src="addEditor.js"></script>
     <!--<style type="text/css">-->
         <!--.navbar-fixed-left {-->
             <!--width: 140px;-->
@@ -70,25 +70,36 @@
 
         <form>
             <div class="form-group">
-                <h2 class="form-signin-heading">Add Album</h2>
-                <label class="col-form-label" for="albumName">Album Name</label>
-                <input type="text" class="form-control" id="albumName" placeholder="ex: Travel">
-                <br>
-                <br>
+                <h2 class="form-signin-heading">Add Editor</h2>
+                <!--<label class="col-form-label" for="albumName">Album Name</label>-->
+                <!--<input type="text" class="form-control" id="albumName" placeholder="ex: Travel">-->
+
                 <label class="mr-sm-2" for="targetIdSelect">Target Name</label>
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetIdSelect">
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" onchange="targetChange()" id="targetIdSelect">
                     <option selected>Choose...</option>
                 </select>
+                <br>
+                <small id="targetDescription" class="form-text text-muted">Please choose the target to add editor.</small>
+
+                <br>
+                <br>
+
+                <label class="mr-sm-2" for="userIdSelect">Editor Name</label>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="userIdSelect">
+                    <option selected>Choose...</option>
+                </select>
+                <br>
+                <small id="editorDescription" class="form-text text-muted">Please choose the editor who you want to add.</small>
+
             </div>
         </form>
 
         <!--<h1 class="text-center" id="Click Here!">Click Here!-->
         <!--<p></p>-->
         <!--</h1>-->
-
         <div class="col-sm-6 col-md-offset-3">
             <button id="addButton" class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
-            <button id="cancelButton" class="btn btn-lg btn-secondary btn-block" type="submit">Cancel</button>
+            <button id="cancelButton" class="btn btn-lg btn-primary btn-block" type="submit">Cancel</button>
             <p></p>
             <label id="greeting" class="text-danger">Greeting</label>
         </div>

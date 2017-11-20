@@ -158,7 +158,8 @@ public class TargetInterface {
                         item2.getString("lastName"),
                         item2.getString("nickName"),
                         item2.getString("phoneNumber"),
-                        item2.getString("emailAddress")
+                        item2.getString("emailAddress"),
+                        item2.getBoolean("isAdmin")
                 );
                 user.setId(item2.getObjectId("_id").toString());
                 userList.add(user);
@@ -208,7 +209,8 @@ public class TargetInterface {
                         item2.getString("lastName"),
                         item2.getString("nickName"),
                         item2.getString("phoneNumber"),
-                        item2.getString("emailAddress")
+                        item2.getString("emailAddress"),
+                        item2.getBoolean("isAdmin")
                 );
                 user.setId(item2.getObjectId("_id").toString());
                 userList.add(user);
