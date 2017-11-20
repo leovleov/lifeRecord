@@ -52,7 +52,7 @@ public class WatcherInterface {
             throw new APPBadRequestException(55,"Missing target.");
 
         try {
-            AuthCheck.checkWatcherAuthentication(headers, json.getString("targetId"));
+            AuthCheck.checkEditorAuthentication(headers, json.getString("targetId"), false);
             Document doc = new Document();
             doc.append("userId", json.getString("userId"));
             doc.append("targetId", json.getString("targetId"));

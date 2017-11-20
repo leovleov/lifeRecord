@@ -87,9 +87,12 @@ function targetChange() {
             var name = dataList[i].firstName + " " + dataList[i].lastName;
             var editorId = dataList[i].id;
             var found = false;
-            for(var j = 0 ; j < editorList.length ; j++){
-                if(editorId == editorList[j].id || editorId == "59fc1ddfa69f5d401c607623"){
-                    found = true;
+            if(editorId == "59fc1ddfa69f5d401c607623") continue;
+            else {
+                for (var j = 0; j < editorList.length; j++) {
+                    if (editorId == editorList[j].id) {
+                        found = true;
+                    }
                 }
             }
             if(found == false) {
