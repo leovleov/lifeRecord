@@ -1,5 +1,6 @@
 package cmu.sv.lifeRecord.rest;
 
+import cmu.sv.lifeRecord.models.Message;
 import cmu.sv.lifeRecord.models.Record;
 import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.exceptions.*;
@@ -32,6 +33,7 @@ import java.util.List;
 public class RecordsInterface {
     private MongoCollection<Document> collection;
     private MongoCollection<Document> picCollection;
+    private MongoCollection<Document> msgCollection;
     private ObjectWriter ow;
 
 
@@ -40,6 +42,7 @@ public class RecordsInterface {
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         collection = database.getCollection("records");
         picCollection = database.getCollection("pictures");
+        msgCollection = database.getCollection("messages");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -203,6 +206,52 @@ public class RecordsInterface {
         }
     }
 
+    @GET
+    @Path("{id}/messages")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPListResponse getMessagesForRecord(@Context HttpHeaders headers, @PathParam("id") String id,
+                                                @DefaultValue("_id") @QueryParam("sort") String sortArg,
+                                                @DefaultValue("20") @QueryParam("count") int count,
+                                                @DefaultValue("0") @QueryParam("offset") int offset) {
+
+        ArrayList<Message> msgList = new ArrayList<>();
+
+        try {
+            recordCheckWatcher(headers, id);
+            BasicDBObject sortParams = new BasicDBObject();
+            List<String> sortList = Arrays.asList(sortArg.split(","));
+            sortList.forEach(sortItem -> {
+                sortParams.put(sortItem,1);
+            });
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("recordId", id);
+
+            long resultCount = msgCollection.count(query);
+            FindIterable<Document> results = msgCollection.find(query).sort(sortParams).skip(offset).limit(count);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (Document item : results) {
+                Message msg = new Message(
+                        item.getString("userId"),
+                        item.getString("recordId"),
+                        item.getString("messageInfo"),
+                        sdf.format(item.getDate("createDate"))
+                );
+                msg.setId(item.getObjectId("_id").toString());
+                msgList.add(msg);
+
+            }
+            return new APPListResponse(msgList,resultCount,offset, msgList.size());
+
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(Exception e) {
+            System.out.println("Get data EXCEPTION!!!!");
+            e.printStackTrace();
+            throw new APPInternalServerException(99,e.getMessage());
+        }
+    }
+
     @PATCH
     @Path("{id}")
     @Consumes({ MediaType.APPLICATION_JSON})
@@ -330,11 +379,48 @@ public class RecordsInterface {
              String targetId = recordCheckEditor(headers, id);
             json = new JSONObject(ow.writeValueAsString(request));
             if (!json.has("url"))
-                throw new APPBadRequestException(55,"missing url");
+                throw new APPBadRequestException(55,"missing url.");
             Document doc = new Document("url", json.getString("url"))
                     .append("recordId", id)
                     .append("targetId", targetId);
             picCollection.insertOne(doc);
+            return new APPResponse(request);
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (JsonProcessingException e) {
+            throw new APPBadRequestException(33, e.getMessage());
+        } catch(JSONException e) {
+            throw new APPBadRequestException(33,"Failed to post a document.");
+        } catch(BadRequestException e) {
+            throw e;
+        } catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @POST
+    @Path("{id}/messages")
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse createMessage(@Context HttpHeaders headers, @PathParam("id") String id, Object request) {
+        JSONObject json = null;
+        try {
+            String targetId = recordCheckEditor(headers, id);
+
+            List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeaders == null)
+                throw new APPUnauthorizedException(70, "No Authorization Headers");
+            String token = authHeaders.get(0);
+            String userId = APPCrypt.decrypt(token);
+
+            json = new JSONObject(ow.writeValueAsString(request));
+            if (!json.has("messageInfo"))
+                throw new APPBadRequestException(55,"missing message information.");
+            Document doc = new Document("messageInfo", json.getString("messageInfo"))
+                    .append("userId", userId)
+                    .append("recordId", id)
+                    .append("createDate", new Date());
+            msgCollection.insertOne(doc);
             return new APPResponse(request);
         } catch(APPUnauthorizedException e) {
             throw e;

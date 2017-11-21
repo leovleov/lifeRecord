@@ -172,14 +172,23 @@ public class PicturesInterface {
     @DELETE
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse delete(@PathParam("id") String id) {
-        BasicDBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(id));
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            picCheckEditor(headers, id);
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
 
-        DeleteResult deleteResult = collection.deleteOne(query);
-        if (deleteResult.getDeletedCount() < 1)
-            throw new APPNotFoundException(66,"Could not delete");
+            DeleteResult deleteResult = collection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete");
 
-        return new APPResponse(new JSONObject());
+            return new APPResponse(new JSONObject());
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
+            throw e;
+        } catch (Exception e){
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
     }
 }
