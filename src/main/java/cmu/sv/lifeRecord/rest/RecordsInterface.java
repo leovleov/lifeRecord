@@ -43,37 +43,85 @@ public class RecordsInterface {
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse getAll() {
 
-        ArrayList<Record> recordList = new ArrayList<Record>();
 
-        try {
-            FindIterable<Document> results = collection.find();
-            if (results == null) {
-                return new APPResponse(recordList);
-            }
-            for (Document item : results) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Record record = new Record(
-                        item.getString("recordName"),
-                        item.getString("recordInfo"),
-                        item.getString("albumId"),
-                        item.getString("targetId"),
-                        item.getString("userId"),
-                        sdf.format(item.getDate("createDate")),
-                        sdf.format(item.getDate("updateDate"))
-                );
-                record.setId(item.getObjectId("_id").toString());
-                recordList.add(record);
-            }
-            return new APPResponse(recordList);
-        } catch(Exception e) {
-            System.out.println("Get data EXCEPTION!!!!");
-            e.printStackTrace();
-            throw new APPInternalServerException(99,e.getMessage());
+//    @GET
+//    @Produces({ MediaType.APPLICATION_JSON})
+//    public APPResponse getAll() {
+//
+//        ArrayList<Record> recordList = new ArrayList<Record>();
+//
+//        try {
+//            FindIterable<Document> results = collection.find();
+//            if (results == null) {
+//                return new APPResponse(recordList);
+//            }
+//            for (Document item : results) {
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                Record record = new Record(
+//                        item.getString("recordName"),
+//                        item.getString("recordInfo"),
+//                        item.getString("albumId"),
+//                        item.getString("targetId"),
+//                        item.getString("userId"),
+//                        sdf.format(item.getDate("createDate")),
+//                        sdf.format(item.getDate("updateDate"))
+//                );
+//                record.setId(item.getObjectId("_id").toString());
+//                recordList.add(record);
+//            }
+//            return new APPResponse(recordList);
+//        } catch(Exception e) {
+//            System.out.println("Get data EXCEPTION!!!!");
+//            e.printStackTrace();
+//            throw new APPInternalServerException(99,e.getMessage());
+//        }
+//    }
+
+    public String recordCheckEditor(HttpHeaders headers, String recordId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("_id", new ObjectId(recordId));
+        Document item = collection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such record.");
         }
+        AuthCheck.checkEditorAuthentication(headers,item.getString("targetId"),false);
+        return item.getString("targetId");
+    }
+
+    public String recordCheckWatcher(HttpHeaders headers, String recordId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("_id", new ObjectId(recordId));
+        Document item = collection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such record.");
+        }
+        AuthCheck.checkWatcherAuthentication(headers,item.getString("targetId"));
+        return item.getString("targetId");
+    }
+
+    public String recordCheckOwn(HttpHeaders headers, String recordId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("_id", new ObjectId(recordId));
+        Document item = collection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such record.");
+        }
+        AuthCheck.checkOwnAuthentication(headers,item.getString("userId"));
+        return item.getString("targetId");
     }
 
     @GET
@@ -122,7 +170,7 @@ public class RecordsInterface {
         ArrayList<Picture> picList = new ArrayList<Picture>();
 
         try {
-            //checkAuthentication(headers,id);
+            recordCheckWatcher(headers, id);
             BasicDBObject sortParams = new BasicDBObject();
             List<String> sortList = Arrays.asList(sortArg.split(","));
             sortList.forEach(sortItem -> {
@@ -137,7 +185,8 @@ public class RecordsInterface {
             for (Document item : results) {
                 Picture pic = new Picture(
                         item.getString("url"),
-                        item.getString("recordId")
+                        item.getString("recordId"),
+                        item.getString("targetId")
                 );
                 pic.setId(item.getObjectId("_id").toString());
                 picList.add(pic);
@@ -145,6 +194,8 @@ public class RecordsInterface {
             }
             return new APPListResponse(picList,resultCount,offset, picList.size());
 
+        } catch(APPUnauthorizedException e) {
+            throw e;
         } catch(Exception e) {
             System.out.println("Get data EXCEPTION!!!!");
             e.printStackTrace();
@@ -156,16 +207,13 @@ public class RecordsInterface {
     @Path("{id}")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse update(@PathParam("id") String id, Object request) {
+    public APPResponse update(@Context HttpHeaders headers, @PathParam("id") String id, Object request) {
+
         JSONObject json = null;
-        try {
-            json = new JSONObject(ow.writeValueAsString(request));
-        }
-        catch (JsonProcessingException e) {
-            throw new APPBadRequestException(33, e.getMessage());
-        }
 
         try {
+            recordCheckEditor(headers, id);
+            json = new JSONObject(ow.writeValueAsString(request));
             if (json.has("targetId"))
                 //doc.append("targetId",json.getString("targetId"));
                 throw new APPBadRequestException(33, "Target can't be updated.");
@@ -197,6 +245,8 @@ public class RecordsInterface {
             throw e;
         } catch(JSONException e) {
             throw new APPBadRequestException(33,"Failed to patch a document.");
+        } catch(APPUnauthorizedException e) {
+            throw e;
         } catch(Exception e) {
             throw new APPInternalServerException(99,"Unexpected error!");
         }
@@ -207,94 +257,97 @@ public class RecordsInterface {
     @DELETE
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse delete(@PathParam("id") String id) {
-        BasicDBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(id));
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            recordCheckOwn(headers, id);
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
 
-        DeleteResult deleteResult = collection.deleteOne(query);
-        if (deleteResult.getDeletedCount() < 1)
-            throw new APPNotFoundException(66,"Could not delete the record.");
+            DeleteResult deleteResult = collection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete the record.");
 
-        return new APPResponse(new JSONObject());
+            return new APPResponse(new JSONObject());
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
     }
 
-    @POST
-    @Consumes({ MediaType.APPLICATION_JSON})
-    @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse create(Object request) {
-        JSONObject json = null;
-        try {
-            json = new JSONObject(ow.writeValueAsString(request));
-        }
-        catch (JsonProcessingException e) {
-            throw new APPBadRequestException(33, e.getMessage());
-        }
-        if (!json.has("recordName"))
-            throw new APPBadRequestException(55,"missing name");
-        if (!json.has("recordInfo"))
-            throw new APPBadRequestException(55,"missing info");
-        if (!json.has("targetId"))
-            throw new APPBadRequestException(55,"missing target");
-        if (!json.has("userId"))
-            throw new APPBadRequestException(55,"missing user");
-        try {
-            Document doc = new Document();
-            doc.append("recordName", json.getString("recordName"));
-            doc.append("recordInfo", json.getString("recordInfo"));
-            doc.append("targetId", json.getString("targetId"));
-            doc.append("userId", json.getString("userId"));
-            if (json.has("albumId"))
-                doc.append("albumId", json.getString("albumId"));
-            else
-                doc.append("albumId", "");
-            doc.append("createDate", new Date());
-            doc.append("updateDate", new Date());
-
-            collection.insertOne(doc);
-            return new APPResponse(request);
-        } catch(JSONException e) {
-            throw new APPBadRequestException(33,"Failed to post a document.");
-        } catch(Exception e) {
-            throw new APPInternalServerException(99,"Unexpected error!");
-        }
-    }
+//    @POST
+//    @Consumes({ MediaType.APPLICATION_JSON})
+//    @Produces({ MediaType.APPLICATION_JSON})
+//    public APPResponse create(Object request) {
+//        JSONObject json = null;
+//        try {
+//            json = new JSONObject(ow.writeValueAsString(request));
+//        }
+//        catch (JsonProcessingException e) {
+//            throw new APPBadRequestException(33, e.getMessage());
+//        }
+//        if (!json.has("recordName"))
+//            throw new APPBadRequestException(55,"missing name");
+//        if (!json.has("recordInfo"))
+//            throw new APPBadRequestException(55,"missing info");
+//        if (!json.has("targetId"))
+//            throw new APPBadRequestException(55,"missing target");
+//        if (!json.has("userId"))
+//            throw new APPBadRequestException(55,"missing user");
+//        try {
+//            Document doc = new Document();
+//            doc.append("recordName", json.getString("recordName"));
+//            doc.append("recordInfo", json.getString("recordInfo"));
+//            doc.append("targetId", json.getString("targetId"));
+//            doc.append("userId", json.getString("userId"));
+//            if (json.has("albumId"))
+//                doc.append("albumId", json.getString("albumId"));
+//            else
+//                doc.append("albumId", "");
+//            doc.append("createDate", new Date());
+//            doc.append("updateDate", new Date());
+//
+//            collection.insertOne(doc);
+//            return new APPResponse(request);
+//        } catch(JSONException e) {
+//            throw new APPBadRequestException(33,"Failed to post a document.");
+//        } catch(APPUnauthorizedException e) {
+//            throw e;
+//        } catch(Exception e) {
+//            throw new APPInternalServerException(99,"Unexpected error!");
+//        }
+//    }
 
     @POST
     @Path("{id}/pictures")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse createPic(@PathParam("id") String id, Object request) {
+    public APPResponse createPic(@Context HttpHeaders headers, @PathParam("id") String id, Object request) {
         JSONObject json = null;
         try {
+             String targetId = recordCheckEditor(headers, id);
             json = new JSONObject(ow.writeValueAsString(request));
-        }
-        catch (JsonProcessingException e) {
-            throw new APPBadRequestException(33, e.getMessage());
-        }
-        if (!json.has("url"))
-            throw new APPBadRequestException(55,"missing url");
-        if (!json.has("recordId"))
-            throw new APPBadRequestException(55,"missing related record");
-        try {
+            if (!json.has("url"))
+                throw new APPBadRequestException(55,"missing url");
             Document doc = new Document("url", json.getString("url"))
-                    .append("recordId", json.getString("recordId"));
+                    .append("recordId", id)
+                    .append("targetId", targetId);
             picCollection.insertOne(doc);
             return new APPResponse(request);
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (JsonProcessingException e) {
+            throw new APPBadRequestException(33, e.getMessage());
         } catch(JSONException e) {
             throw new APPBadRequestException(33,"Failed to post a document.");
+        } catch(BadRequestException e) {
+            throw e;
         } catch(Exception e) {
             throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
 
-    void checkAuthentication(HttpHeaders headers,String id) throws Exception{
-        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeaders == null)
-            throw new APPUnauthorizedException(70,"No Authorization Headers");
-        String token = authHeaders.get(0);
-        String clearToken = APPCrypt.decrypt(token);
-        if (id.compareTo(clearToken) != 0) {
-            throw new APPUnauthorizedException(71,"Invalid token. Please try getting a new token");
-        }
-    }
+
 }
