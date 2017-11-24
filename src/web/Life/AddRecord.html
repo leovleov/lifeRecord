@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Editor</title>
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <script src="addEditor.js"></script>
+    <!--<style type="text/css">-->
+        <!--.navbar-fixed-left {-->
+            <!--width: 140px;-->
+            <!--position: fixed;-->
+            <!--border-radius: 0;-->
+            <!--height: 100%;-->
+        <!--}-->
+
+        <!--.navbar-fixed-left .navbar-nav > li {-->
+            <!--float: none;  /* Cancel default li float: left */-->
+            <!--width: 139px;-->
+        <!--}-->
+
+        <!--.navbar-fixed-left + .container {-->
+            <!--padding-left: 160px;-->
+        <!--}-->
+
+        <!--/* On using dropdown menu (To right shift popuped) */-->
+        <!--.navbar-fixed-left .navbar-nav > li > .dropdown-menu {-->
+            <!--margin-top: -50px;-->
+            <!--margin-left: 140px;-->
+        <!--}-->
+        <!--.posters-list {-->
+        <!--font-size: 0;-->
+        <!--letter-spacing: -1px;-->
+        <!--text-align: left;-->
+        <!--margin-top: 10px;-->
+        <!--}-->
+        <!--.list-inline {-->
+        <!--margin-left: -5px;-->
+        <!--}-->
+        <!--.list-inline, .list-unstyled {-->
+        <!--padding-left: 0;-->
+        <!--list-style: none;-->
+        <!--}-->
+
+    <!--</style>-->
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-left">
+    <a class="navbar-brand" href="#">Life Record</a>
+
+    <ul class="nav navbar-nav" style="margin-top: 20px">
+        <li><a href="AlbumManagement.html" align="center">Albums Management</a></li>
+        <li><a href="EditorsList.html" align="center">Editors</a></li>
+        <li><a href="WatchersList.html" align="center">Watchers</a></li>
+    </ul>
+</div>
+<div class="container">
+    <div class="row col-md-8 col-md-offset-2">
+
+        <form>
+            <div class="form-group">
+                <h2 class="form-signin-heading">Add Record</h2>
+                <!--<label class="col-form-label" for="albumName">Album Name</label>-->
+                <!--<input type="text" class="form-control" id="albumName" placeholder="ex: Travel">-->
+
+                <label class="mr-sm-2" for="targetIdSelect">Select Target</label>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" onchange="targetChange()" id="targetIdSelect">
+                    <option selected>Choose...</option>
+                </select>
+                <br>
+                <small id="targetDescription" class="form-text text-muted">Please choose the target to add record.</small>
+
+                <br>
+                <br>
+
+                <label class="mr-sm-2" for="targetIdSelect">Select Album</label>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" onchange="targetChange()" id="targetIdSelect">
+                    <option selected>Choose...</option>
+                </select>
+                <br>
+                <!--We give the default album-->
+                <small id="targetDescription" class="form-text text-muted">Please choose the album to add record.</small>
+                <br>
+                <br>
+
+                <!-- <label class="mr-sm-2" for="userIdSelect">Editor Name</label>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="userIdSelect">
+                    <option selected>Choose...</option>
+                </select>
+                <br>
+                <small id="editorDescription" class="form-text text-muted">Please choose the editor who you want to add.</small> -->
+                <!-- upload the image -->
+
+                
+
+               <!--   <div class="container"> -->
+
+      <div style="max-width: 650px;">
+  <!--       <h1 class="page-header">Bootstrap Image Upload Form</h1> -->
+  <label for="usr">Upload the image:</label>
+  <input type="text" class="form-control" id="usr">
+     <!--    <p class="lead">Select a PNG or JPEG image, having maximum size <span id="max-size"></span> KB.</p> -->
+
+        <form id="upload-image-form" action="" method="post" enctype="multipart/form-data">
+          <div id="image-preview-div" style="display: none">
+            <label for="exampleInputFile">Selected image:</label>
+            <br>
+            <img id="preview-img" src="noimage">
+          </div>
+          <div class="form-group">
+            <input type="file" name="file" id="file" required>
+          </div>
+          <button  id="upload-button" type="submit" disabled>Upload</button>
+        </form>
+
+        <br>
+        <div class="alert alert-info" id="loading" style="display: none;" role="alert">
+          Uploading image...
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+            </div>
+          </div>
+        </div>
+        <div id="message"></div>
+      </div>
+
+      <!-- <a target="_blank" href="https://github.com/ShinDarth/Bootstrap-image-upload-form"><img style="position: absolute; top: 50px; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a> -->
+
+    </div>
+
+
+<!--             </div> -->
+
+            <div class="form-group">
+  <label for="usr">Record Description:</label>
+  <input type="text" class="form-control" id="usr">
+</div>
+        </form>
+
+        <!--<h1 class="text-center" id="Click Here!">Click Here!-->
+        <!--<p></p>-->
+        <!--</h1>-->
+        <div class="col-sm-6 col-md-offset-3">
+            <button id="addButton" class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
+            <button id="cancelButton" class="btn btn-lg btn-primary btn-block" type="submit">Cancel</button>
+            <p></p>
+            <label id="greeting" class="text-danger">Greeting</label>
+        </div>
+
+    </div> 
+</div>
+</body>
+</html>
