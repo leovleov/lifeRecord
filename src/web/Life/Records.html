@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Album Management</title>
+    <title>Records</title>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="Comments.css">
 
-    <script src="target.js"></script>
 
+<!--     <script src="record.js"></script>
+ -->
 </head>
 <body>
 
@@ -43,7 +45,8 @@
   </div>
 </nav>
 
- 
+<br>
+
 </div>
  <div class="container">
     <div>
@@ -62,12 +65,84 @@
       <div class="row text-center text-lg-left">
 
         <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
             <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
+             <!-- Like button --> 
+
+            <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->  
+
+            <!-- Will countinue to work on it after backing home -->      
+            <div id="demo">
+                <button class="btn like btn-danger"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes">0</span></button>
+                <button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>
+            </div>
+
              <p class="card-text">I went to Tennessee and took this picture, it was really a great trip </p>
+             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">
+              View
+            </button>
+
+              <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Record Comments</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                          <div class="actionBox">
+                              <ul class="commentList">
+                                  <li>
+                                      <div class="commenterImage">
+                                        <img src="http://placekitten.com/50/50" />
+                                      </div>
+                                      <div class="commentText">
+                                          <p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>
+
+                                      </div>
+                                  </li>
+                                  <li>
+                                      <div class="commenterImage">
+                                        <img src="http://placekitten.com/45/45" />
+                                      </div>
+                                      <div class="commentText">
+                                          <p class="">Hello this is a test comment and this comment is particularly very long and it goes on and on and on.</p> <span class="date sub-text">on March 5th, 2014</span>
+
+                                      </div>
+                                  </li>
+                                  <li>
+                                      <div class="commenterImage">
+                                        <img src="http://placekitten.com/40/40" />
+                                      </div>
+                                      <div class="commentText">
+                                          <p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>
+
+                                      </div>
+                                  </li>
+                              </ul>
+                              <form class="form-inline" role="form">
+                                  <div class="form-group">
+                                      <input class="form-control" type="text" placeholder="Your comments" />
+                                  </div>
+                                  <div class="form-group">
+                                      <button class="btn btn-info">Add</button>
+                                  </div>
+                              </form>
+                          </div>
+                    </div>
+<!--                     <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save changes</button>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+
+
              <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
              <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
+          
         </div>
        <div class="col-lg-3 col-md-4 col-xs-6">
           <a href="#" class="d-block mb-4 h-100">
@@ -137,5 +212,11 @@
 
 
 </div>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js">
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js">
+</script>
 </body>
 </html>
