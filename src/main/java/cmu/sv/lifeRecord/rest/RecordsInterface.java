@@ -34,6 +34,7 @@ public class RecordsInterface {
     private MongoCollection<Document> collection;
     private MongoCollection<Document> picCollection;
     private MongoCollection<Document> msgCollection;
+    private MongoCollection<Document> likeCollection;
     private ObjectWriter ow;
 
 
@@ -43,6 +44,7 @@ public class RecordsInterface {
         collection = database.getCollection("records");
         picCollection = database.getCollection("pictures");
         msgCollection = database.getCollection("messages");
+        likeCollection = database.getCollection("likes");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -127,6 +129,25 @@ public class RecordsInterface {
         return item.getString("targetId");
     }
 
+    public String likeCheckOwn(HttpHeaders headers, String recordId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+        String token = authHeaders.get(0);
+        String userId = APPCrypt.decrypt(token);
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("recordId", recordId);
+        query.put("userId", userId);
+        Document item = likeCollection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such record.");
+        }
+        if(!item.getString("userId").equals(userId))
+            throw new APPUnauthorizedException(71, "Authorization fail!");
+        return item.getObjectId("_id").toString();
+    }
+
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
@@ -151,6 +172,28 @@ public class RecordsInterface {
             record.setId(item.getObjectId("_id").toString());
             AuthCheck.checkWatcherAuthentication(headers,item.getString("targetId"));
             return new APPResponse(record);
+        } catch(APPNotFoundException e) {
+            throw e;
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }  catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/likeNumber")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getLikeNumber(@Context HttpHeaders headers, @PathParam("id") String id) {
+        BasicDBObject query = new BasicDBObject();
+        try {
+            recordCheckWatcher(headers,id);
+            query.put("recordId", id);
+            long resultCount = likeCollection.count(query);
+
+            return new APPResponse(resultCount);
         } catch(APPNotFoundException e) {
             throw e;
         } catch(APPUnauthorizedException e) {
@@ -326,6 +369,29 @@ public class RecordsInterface {
         }
     }
 
+    @DELETE
+    @Path("{id}/likes")
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse deleteLike(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            String likeId = likeCheckOwn(headers, id);
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(likeId));
+
+            DeleteResult deleteResult = likeCollection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete the like.");
+
+            return new APPResponse(new JSONObject());
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
+    }
+
 //    @POST
 //    @Consumes({ MediaType.APPLICATION_JSON})
 //    @Produces({ MediaType.APPLICATION_JSON})
@@ -422,6 +488,39 @@ public class RecordsInterface {
                     .append("createDate", new Date());
             msgCollection.insertOne(doc);
             return new APPResponse(request);
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (JsonProcessingException e) {
+            throw new APPBadRequestException(33, e.getMessage());
+        } catch(JSONException e) {
+            throw new APPBadRequestException(33,"Failed to post a document.");
+        } catch(BadRequestException e) {
+            throw e;
+        } catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @POST
+    @Path("{id}/likes")
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse createLike(@Context HttpHeaders headers, @PathParam("id") String id) {
+        JSONObject json = null;
+        try {
+            String targetId = recordCheckWatcher(headers, id);
+
+            List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeaders == null)
+                throw new APPUnauthorizedException(70, "No Authorization Headers");
+            String token = authHeaders.get(0);
+            String userId = APPCrypt.decrypt(token);
+
+            Document doc = new Document("userId", userId)
+                    .append("recordId", id)
+                    .append("createDate", new Date());
+            likeCollection.insertOne(doc);
+            return new APPResponse(doc);
         } catch(APPUnauthorizedException e) {
             throw e;
         } catch (JsonProcessingException e) {

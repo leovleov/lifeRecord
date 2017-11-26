@@ -17,6 +17,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -386,6 +387,40 @@ public class TargetInterface {
         } catch(APPUnauthorizedException e) {
             throw e;
         } catch (APPBadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            AuthCheck.checkEditorAuthentication(headers, id, true);
+            BasicDBObject queryCheckNum = new BasicDBObject();
+            queryCheckNum.put("targetId", id);
+            long resultCount = recordCollection.count(queryCheckNum);
+            if(resultCount != 0)
+                throw new APPBadRequestException(67, "Please clean the record first.");
+
+            DeleteResult deleteResultEditor = editorCollection.deleteMany(queryCheckNum);
+            DeleteResult deleteResultWatcher = watcherCollection.deleteMany(queryCheckNum);
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
+
+            DeleteResult deleteResult = targetCollection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete the record.");
+
+            return new APPResponse(new JSONObject());
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(APPBadRequestException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new APPInternalServerException(99, "Unexpected error!");
