@@ -14,7 +14,7 @@ import java.util.List;
 public class AuthCheck {
 
     // Only Admin can pass
-    public static void checkAdminAuthentication(HttpHeaders headers) throws Exception{
+    public static String checkAdminAuthentication(HttpHeaders headers) throws Exception{
         MongoCollection<Document> adminCollection;
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
@@ -32,11 +32,12 @@ public class AuthCheck {
         if (item == null) {     //This user is an administrator
             throw new APPUnauthorizedException(71, "Authenticaion Failed.");
         }
+        return clearToken;
 
     }
 
     //The user and admin can pass
-    public static void checkOwnAuthentication(HttpHeaders headers, String id) throws Exception{
+    public static String checkOwnAuthentication(HttpHeaders headers, String id) throws Exception{
         MongoCollection<Document> adminCollection;
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
@@ -52,7 +53,7 @@ public class AuthCheck {
         query.put("userId", clearToken);
         Document item = adminCollection.find(query).first();
         if (item != null) {     //This user is an administrator
-            return;
+            return clearToken;
         }
         else if(id == null){
             throw new APPUnauthorizedException(71, "Authenticaion Failed.");
@@ -60,11 +61,11 @@ public class AuthCheck {
         if (id.compareTo(clearToken) != 0) {
             throw new APPUnauthorizedException(71, "Invalid token. Please try getting a new token.");
         }
-
+        return clearToken;
     }
 
     //Any login person can pass
-    public static void checkAnyAuthentication(HttpHeaders headers) throws Exception{
+    public static String checkAnyAuthentication(HttpHeaders headers) throws Exception{
         MongoCollection<Document> userCollection;
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
@@ -82,11 +83,11 @@ public class AuthCheck {
         if (item == null) {     //This user does not exist
             throw new APPUnauthorizedException(71, "Invalid token. Please try getting a new token.");
         }
-
+        return clearToken;
     }
 
     //The user in the editor list and admin can pass, isCreator specifies whether the user need to be the creator
-    public static void checkEditorAuthentication(HttpHeaders headers, String targetId, Boolean isCreator) throws Exception{
+    public static String checkEditorAuthentication(HttpHeaders headers, String targetId, Boolean isCreator) throws Exception{
         MongoCollection<Document> adminCollection;
         MongoCollection<Document> editorCollection;
         MongoClient mongoClient = new MongoClient();
@@ -104,7 +105,7 @@ public class AuthCheck {
         query.put("userId", clearToken);
         Document item = adminCollection.find(query).first();
         if (item != null) {     //This user is an administrator
-            return;
+            return clearToken;
         }
         BasicDBObject query2 = new BasicDBObject();
         query2.put("userId", clearToken);
@@ -113,7 +114,7 @@ public class AuthCheck {
             query2.put("isCreator", true);
         Document item2 = editorCollection.find(query2).first();
         if (item2 != null){
-            return;
+            return clearToken;
         }
         else{
             throw new APPUnauthorizedException(71, "Authorization fail!");
@@ -122,7 +123,7 @@ public class AuthCheck {
     }
 
     //The user in the watcher list and admin can pass
-    public static void checkWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
+    public static String checkWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
         MongoCollection<Document> adminCollection;
         MongoCollection<Document> watcherCollection;
         MongoClient mongoClient = new MongoClient();
@@ -140,14 +141,14 @@ public class AuthCheck {
         query.put("userId", clearToken);
         Document item = adminCollection.find(query).first();
         if (item != null) {     //This user is an administrator
-            return;
+            return clearToken;
         }
         BasicDBObject query2 = new BasicDBObject();
         query2.put("userId", clearToken);
         query2.put("targetId", targetId);
         Document item2 = watcherCollection.find(query2).first();
         if (item2 != null){
-            return;
+            return clearToken;
         }
         else{
             throw new APPUnauthorizedException(71, "Authorization fail!");
@@ -156,7 +157,7 @@ public class AuthCheck {
     }
 
     //The user in the editor or watcher list, and admin can pass
-    public static void checkEditorOrWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
+    public static String checkEditorOrWatcherAuthentication(HttpHeaders headers, String targetId) throws Exception{
         MongoCollection<Document> adminCollection;
         MongoCollection<Document> watcherCollection;
         MongoCollection<Document> editorCollection;
@@ -176,7 +177,7 @@ public class AuthCheck {
         query.put("userId", clearToken);
         Document item = adminCollection.find(query).first();
         if (item != null) {     //This user is an administrator
-            return;
+            return clearToken;
         }
         BasicDBObject query2 = new BasicDBObject();
         query2.put("userId", clearToken);
@@ -184,7 +185,7 @@ public class AuthCheck {
         Document item2 = watcherCollection.find(query2).first();
         Document item3 = editorCollection.find(query2).first();
         if (item2 != null || item3 != null){
-            return;
+            return clearToken;
         }
         else{
             throw new APPUnauthorizedException(71, "Authorization fail!");

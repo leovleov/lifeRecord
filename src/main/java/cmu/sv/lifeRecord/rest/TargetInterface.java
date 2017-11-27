@@ -5,6 +5,7 @@ import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
 import cmu.sv.lifeRecord.helpers.APPCrypt;
+import cmu.sv.lifeRecord.helpers.APPListResponse;
 import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
 import cmu.sv.lifeRecord.models.*;
@@ -16,6 +17,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -26,6 +28,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -37,6 +40,8 @@ public class TargetInterface {
     private MongoCollection<Document> editorCollection;
     private MongoCollection<Document> watcherCollection;
     private MongoCollection<Document> userCollection;
+    private MongoCollection<Document> recordCollection;
+    private MongoCollection<Document> picCollection;
     private ObjectWriter ow;
 
 
@@ -49,6 +54,8 @@ public class TargetInterface {
         this.editorCollection = database.getCollection("editors");
         this.watcherCollection = database.getCollection("watchers");
         this.userCollection = database.getCollection("users");
+        this.recordCollection = database.getCollection("records");
+        this.picCollection = database.getCollection("pictures");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
@@ -129,6 +136,96 @@ public class TargetInterface {
             throw new APPInternalServerException(99,"Unexpected error!");
         }
     }
+
+    @GET
+    @Path("{id}/records")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getTargetRecords(@Context HttpHeaders headers, @PathParam("id") String id) {
+        ArrayList<Record> recordList = new ArrayList<>();
+        try {
+            AuthCheck.checkEditorAuthentication(headers,id,false);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("targetId", id);
+            FindIterable<Document> results = recordCollection.find(query);
+            if (results == null) {
+                return new APPResponse(recordList);
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (Document item : results) {
+                Record record = new Record(
+                        item.getString("recordName"),
+                        item.getString("recordInfo"),
+                        item.getString("albumId"),
+                        item.getString("targetId"),
+                        item.getString("userId"),
+                        sdf.format(item.getDate("createDate")),
+                        sdf.format(item.getDate("updateDate"))
+                );
+                record.setId(item.getObjectId("_id").toString());
+                recordList.add(record);
+            }
+            return new APPResponse(recordList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/pictures")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPListResponse getPicturesForTarget(@Context HttpHeaders headers, @PathParam("id") String id,
+                                                @DefaultValue("_id") @QueryParam("sort") String sortArg,
+                                                @DefaultValue("20") @QueryParam("count") int count,
+                                                @DefaultValue("0") @QueryParam("offset") int offset) {
+
+        ArrayList<Picture> picList = new ArrayList<Picture>();
+
+        try {
+            AuthCheck.checkWatcherAuthentication(headers,id);
+            BasicDBObject sortParams = new BasicDBObject();
+            List<String> sortList = Arrays.asList(sortArg.split(","));
+            sortList.forEach(sortItem -> {
+                sortParams.put(sortItem,1);
+            });
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("targetId", id);
+
+            long resultCount = picCollection.count(query);
+            FindIterable<Document> results = picCollection.find(query).sort(sortParams).skip(offset).limit(count);
+            for (Document item : results) {
+                Picture pic = new Picture(
+                        item.getString("url"),
+                        item.getString("recordId"),
+                        item.getString("targetId")
+                );
+                pic.setId(item.getObjectId("_id").toString());
+                picList.add(pic);
+
+            }
+            return new APPListResponse(picList,resultCount,offset, picList.size());
+
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(Exception e) {
+            System.out.println("Get data EXCEPTION!!!!");
+            e.printStackTrace();
+            throw new APPInternalServerException(99,e.getMessage());
+        }
+    }
+
 
     @GET
     @Path("{id}/editors")
@@ -296,15 +393,49 @@ public class TargetInterface {
         }
     }
 
+    @DELETE
+    @Path("{id}")
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            AuthCheck.checkEditorAuthentication(headers, id, true);
+            BasicDBObject queryCheckNum = new BasicDBObject();
+            queryCheckNum.put("targetId", id);
+            long resultCount = recordCollection.count(queryCheckNum);
+            if(resultCount != 0)
+                throw new APPBadRequestException(67, "Please clean the record first.");
+
+            DeleteResult deleteResultEditor = editorCollection.deleteMany(queryCheckNum);
+            DeleteResult deleteResultWatcher = watcherCollection.deleteMany(queryCheckNum);
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("_id", new ObjectId(id));
+
+            DeleteResult deleteResult = targetCollection.deleteOne(query);
+            if (deleteResult.getDeletedCount() < 1)
+                throw new APPNotFoundException(66, "Could not delete the record.");
+
+            return new APPResponse(new JSONObject());
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(APPBadRequestException e) {
+            throw e;
+        } catch (APPNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
+    }
+
     @POST
     @Path("{id}/albums")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse create(@Context HttpHeaders headers, @PathParam("id") String id, Object request) {
+    public APPResponse createAlbums(@Context HttpHeaders headers, @PathParam("id") String targetId, Object request) {
 
         JSONObject json = null;
         try {
-            AuthCheck.checkEditorAuthentication(headers,id,false);
+            AuthCheck.checkEditorAuthentication(headers,targetId,false);
             json = new JSONObject(ow.writeValueAsString(request));
             if (!json.has("albumName"))
                 throw new APPBadRequestException(55,"Missing album name.");
@@ -312,10 +443,49 @@ public class TargetInterface {
 //                throw new APPBadRequestException(55,"Missing target.");
 
             Document doc = new Document();
-            doc.append("targetId", id);
+            doc.append("targetId", targetId);
             doc.append("albumName", json.getString("albumName"));
             doc.append("albumDate", new Date());
             albumCollection.insertOne(doc);
+            return new APPResponse(request);
+        } catch (JsonProcessingException e) {
+            throw new APPBadRequestException(33, "Failed to parse the data.");
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch (APPBadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new APPInternalServerException(99, "Unexpected error!");
+        }
+    }
+
+    @POST
+    @Path("{id}/records")
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse createRecords(@Context HttpHeaders headers, @PathParam("id") String targetId, Object request) {
+
+        JSONObject json = null;
+        try {
+            String userId = AuthCheck.checkEditorAuthentication(headers,targetId,false);
+            json = new JSONObject(ow.writeValueAsString(request));
+            if (!json.has("recordName"))
+                throw new APPBadRequestException(55,"Missing record name.");
+            if (!json.has("recordInfo"))
+                throw new APPBadRequestException(55,"Missing Info.");
+
+            Document doc = new Document();
+            doc.append("userId", userId);
+            doc.append("recordName", json.getString("recordName"));
+            doc.append("recordInfo", json.getString("recordInfo"));
+            doc.append("targetId", targetId);
+            doc.append("createDate", new Date());
+            doc.append("updateDate", new Date());
+            if(json.has("albumId"))
+                doc.append("albumId", json.getString("albumId"));
+            else
+                doc.append("albumId","");
+            recordCollection.insertOne(doc);
             return new APPResponse(request);
         } catch (JsonProcessingException e) {
             throw new APPBadRequestException(33, "Failed to parse the data.");
