@@ -348,8 +348,16 @@ public class TargetInterface {
                 throw new APPBadRequestException(55, "Missing target name.");
             if (!json.has("targetInfo"))
                 throw new APPBadRequestException(55, "Missing target Info.");
-            BasicDBObject query = new BasicDBObject();
 
+            BasicDBObject queryCheck = new BasicDBObject();
+            queryCheck.put("targetName", json.getString("targetName"));
+            queryCheck.put("creatorId", userId);
+            Document itemCheck = targetCollection.find(queryCheck).first();
+            if (itemCheck != null) {
+                throw new APPBadRequestException(56, "The target name already exists.");
+            }
+
+            BasicDBObject query = new BasicDBObject();
             Document doc = new Document("targetName", json.getString("targetName"))
                     .append("targetInfo", json.getString("targetInfo"))
                     .append("creatorId", userId);

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Editors List</title>
+    <title>Target Management</title>
 
     <script
             src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -13,7 +13,7 @@
             crossorigin="anonymous"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           rel="stylesheet">
-    <script src="targets.js"></script>
+    <script src="targetList.js"></script>
 
 
 </head>
@@ -31,18 +31,32 @@
 
 <div class="container">
     <div>
-        <h1 class="text-primary" align="center">Targets List</h1>
-        <button id="addTarget" class="btn btn-info" type="submit">Add Targets</button>
+        <h1 class="text-primary" align="center">Targets Management</h1>
+        <button id="addTarget" class="btn btn-info" type="submit">New Target</button>
     </div>
     <hr />
 
-     <!--Show the editors list-->
-    <ul class="to-watch-list posters-list list-unstyled list-inline single-row" id="targetList"></ul>
+     <!--Show the Target list-->
+    <!--<ul class="to-watch-list posters-list list-unstyled list-inline single-row" id="targetList"></ul>-->
+    <table border="1" width="1100" align="center" id="targetTable">
+        <tr align="center">
+            <td>Target Name</td>
+            <td>Target Information</td>
+            <td>Condition</td>
+            <td>Select</td>
+        </tr>
+        <tr id="targetRow">
+            <td id="targetName"></td>
+            <td id="targetInfo"></td>
+            <td id="condition"></td>
+            <td id="select" align="center"></td>
+        </tr>
+    </table>
 
     <br />
 
-    <div>
-        <button id="deleteTarget" class="btn btn-info" type="submit" style="margin-left: 50%" >Delete Target</button>
+    <div align="center">
+        <button id="deleteTarget" class="btn btn-danger" type="submit">Delete Target</button>
     </div>
 </div>
 
