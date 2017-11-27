@@ -2,6 +2,7 @@ $(function() {
     var isAdmin = null;
     var token = null;
     var userId = null;
+    var userName = null;
     var offset = 0;
     var count = 20;
     var total = -1;
@@ -24,8 +25,10 @@ $(function() {
             $("#resourceTable").find(".cloned").remove();
             token = data.content.token;
             userId = data.content.userId;
+            userName = data.content.firstName + " " + data.content.lastName;
             localStorage.setItem("token", token);
             localStorage.setItem("userId", userId);
+            localStorage.setItem("userName", userName);
             location.href = "Life/AlbumManagement.html"
         }).fail(function(data){
             $("#greeting").text("Authentication Fail ! You might want to try it again!");
