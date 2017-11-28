@@ -35,26 +35,21 @@
 
         <form>
             <div class="form-group">
-                <h2 class="form-signin-heading">Add Target</h2>
+                <h2 class="form-signin-heading">New Target</h2>
                 <!--<label class="col-form-label" for="albumName">Album Name</label>-->
                 <!--<input type="text" class="form-control" id="albumName" placeholder="ex: Travel">-->
-
-                <label class="mr-sm-2" for="targetIdSelect">Target Name</label>
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" onchange="targetChange()" id="targetIdSelect">
-                    <option selected>Choose...</option>
-                </select>
                 <br>
-                <small id="targetDescription" class="form-text text-muted">Please choose the target from the list.</small>
+                <label class="mr-sm-2" for="targetNameText">New Target's Name</label>
+                <input type="text" class="form-control" id="targetNameText" placeholder="ex: Mia, Leo, ...">
+                <small id="targetNameDescription" class="form-text text-muted">Please enter the target's name.</small>
 
                 <br>
                 <br>
 
-               <!--  <label class="mr-sm-2" for="userIdSelect">Editor Name</label>
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="userIdSelect">
-                    <option selected>Choose...</option>
-                </select>
-                <br>
-                <small id="editorDescription" class="form-text text-muted">Please choose the editor who you want to add.</small> -->
+                <label class="mr-sm-2" for="targetInfoText">New Target's Information</label>
+                <input type="text" class="form-control" id="targetInfoText" placeholder="ex: My best friend... ">
+                <small id="targetInfoDescription" class="form-text text-muted">Please describe the target.</small>
+
 
             </div>
         </form>
@@ -64,7 +59,7 @@
         <!--</h1>-->
         <div class="col-sm-6 col-md-offset-3">
             <button id="addButton" class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
-            <button id="cancelButton" class="btn btn-lg btn-primary btn-block" type="submit">Cancel</button>
+            <button id="cancelButton" class="btn btn-lg btn-secondary btn-block" type="submit">Cancel</button>
             <p></p>
             <label id="greeting" class="text-danger">Greeting</label>
         </div>
