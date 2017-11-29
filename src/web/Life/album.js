@@ -17,7 +17,7 @@ $(function() {
             var targetId = dataList[i].id;
             var albumList;
             $.ajax({
-                url:  "/rest/targets/"+targetId+"/albums",
+                url:  "/rest/targets/"+targetId+"/albums?count=1000",
                 type: "GET",
                 async: false,
                 beforeSend: function (xhr) {

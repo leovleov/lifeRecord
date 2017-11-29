@@ -26,6 +26,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,8 @@ import java.util.regex.Pattern;
 public class UsersInterface {
     private MongoCollection<Document> userCollection;
     private MongoCollection<Document> targetCollection;
+    private MongoCollection<Document> watcherCollection;
+    private MongoCollection<Document> editorCollection;
     private ObjectWriter ow;
 
 
@@ -42,6 +46,8 @@ public class UsersInterface {
 
         this.userCollection = database.getCollection("users");
         this.targetCollection = database.getCollection("targets");
+        this.watcherCollection = database.getCollection("watchers");
+        this.editorCollection = database.getCollection("editors");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
@@ -143,6 +149,72 @@ public class UsersInterface {
                 targetList.add(target);
             }
             return new APPResponse(targetList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("targetsWatch")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPListResponse getOnesTargetsWatch(@Context HttpHeaders headers,
+                                           @DefaultValue("20") @QueryParam("count") int count,
+                                           @DefaultValue("0") @QueryParam("offset") int offset) {
+        ArrayList<Target> targetList = new ArrayList<>();
+        try {
+            //AuthCheck.checkOwnAuthentication(headers,id);
+            String id = AuthCheck.checkAnyAuthentication(headers);
+
+            BasicDBObject query = new BasicDBObject();
+            ArrayList<String> targetIds = new ArrayList<>();
+            query.put("userId", id);
+
+            FindIterable<Document> results = editorCollection.find(query);
+            if (results != null) {
+                for (Document item : results) {
+                    targetIds.add(item.getString("targetId"));
+                }
+            }
+            results = watcherCollection.find(query);
+            if (results != null) {
+                for (Document item : results) {
+                    if(!targetIds.contains(item.getString("targetId")))
+                        targetIds.add(item.getString("targetId"));
+                }
+            }
+            if(targetIds.isEmpty())
+                return new APPListResponse(targetList,targetList.size(),offset,0);
+//                return new APPResponse(targetList);
+            for(int i = offset; (i < offset+count) && (i < targetIds.size()); i++){
+//            Iterator<String> iter = targetIds.iterator();
+//            while(iter.hasNext()){
+//                String targetId = iter.next();
+                String targetId = targetIds.get(i);
+                BasicDBObject query1 = new BasicDBObject();
+                query1.put("_id", new ObjectId(targetId));
+                Document item = targetCollection.find(query1).first();
+                Target target = new Target(
+                        item.getString("targetName"),
+                        item.getString("targetInfo"),
+                        item.getString("creatorId")
+                );
+                target.setId(item.getObjectId("_id").toString());
+                targetList.add(target);
+            }
+
+            //return new APPResponse(targetList);
+            return new APPListResponse(targetList,targetIds.size(),offset,targetList.size());
 
         }
         catch(APPNotFoundException e) {
