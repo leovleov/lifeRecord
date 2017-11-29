@@ -23,17 +23,18 @@ $(function() {
     var editAlbum = ["editAlbum1","editAlbum2", "editAlbum3", "editAlbum4"];
     var deleteAlbum = ["deleteAlbum1", "deleteAlbum2", "deleteAlbum3", "deleteAlbum4"];
     var albumIds = [];
+    var changeId = "";
 
-    var albumId = "5a126ede35abf62df0428e98";
-    var albumName = "Study";
-    // var albumId = getUrlParameter('albumId');
-    // var albumName = getUrlParameter('albumName');
-    document.getElementById('titleRecord').innerHTML = "Record: "+albumName;
-    loadRecords();
+    var targetId = "59fcfcfce5526519d43e0940";
+    var targetName = "Leo Tseng";
+    // var targetId = getUrlParameter('targetId');
+    // var targetName = getUrlParameter('targetName');
+    document.getElementById('titleTarget').innerHTML = "Target: "+targetName;
+    loadAlbums();
 
 
-    function loadRecords(){
-        albumIds.clear();
+    function loadAlbums(){
+        albumIds = [];
         jQuery.ajax({
             url:  "/rest/targets/" + targetId + "/albums?offset=" + offset + "&count="  + count,
             type: "GET",
@@ -70,7 +71,7 @@ $(function() {
                 document.getElementById(albumName[i]).style.visibility = 'visible';
                 document.getElementById(view[i]).style.visibility = 'visible';
                 if(i < targetList.length) {
-                    albumIds.add(targetList[i].id);
+                    albumIds.push(targetList[i].id);
                     document.getElementById(albumName[i]).innerHTML = targetList[i].albumName;
                     if (isEditor == false) {
                         document.getElementById(editAlbum[i]).style.visibility = 'hidden';
@@ -94,7 +95,7 @@ $(function() {
         e.preventDefault();
         if (offset+count < total) {
             offset = offset+count;
-            loadRecords();
+            loadAlbums();
         }
     })
 
@@ -103,13 +104,116 @@ $(function() {
         // console.log("Cliked")
         if (offset-count >= 0) {
             offset = offset-count;
-            loadRecords();
+            loadAlbums();
 
         }
     })
     $("#view1").click(function(e){
         e.preventDefault();
-        location.href = "RecordView.html?albumId="+albumIds[0];
+        window.top.location.href = "RecordView.html?albumId="+albumIds[0];
+    })
+    $("#view2").click(function(e){
+        e.preventDefault();
+        window.top.location.href = "RecordView.html?albumId="+albumIds[1];
+    })
+    $("#view3").click(function(e){
+        e.preventDefault();
+        window.top.location.href = "RecordView.html?albumId="+albumIds[2];
+    })
+    $("#view4").click(function(e){
+        e.preventDefault();
+        window.top.location.href = "RecordView.html?albumId="+albumIds[3];
+    })
+    $("#deleteAlbum1").click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/albums/" + albumIds[0],
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        }).fail(function(data){
+            alert("Delete album fail!");
+        })
+    })
+    $("#deleteAlbum2").click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/albums/" + albumIds[1],
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        }).fail(function(data){
+            alert("Delete album fail!");
+        })
+    })
+    $("#deleteAlbum3").click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/albums/" + albumIds[2],
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        }).fail(function(data){
+            alert("Delete album fail!");
+        })
+    })
+    $("#deleteAlbum4").click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/albums/" + albumIds[3],
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        }).fail(function(data){
+            alert("Delete album fail!");
+        })
+    })
+    $("#editAlbum1").click(function(e){
+        e.preventDefault();
+        changeId = albumIds[0];
+    })
+    $("#editAlbum2").click(function(e){
+        e.preventDefault();
+        changeId = albumIds[1];
+    })
+    $("#editAlbum3").click(function(e){
+        e.preventDefault();
+        changeId = albumIds[2];
+    })
+    $("#editAlbum4").click(function(e){
+        e.preventDefault();
+        changeId = albumIds[3];
+    })
+    $("#btnChangeName").click(function(e){
+        e.preventDefault();
+        var changeName =
+        jQuery.ajax({
+            url:  "/rest/albums/" + changeId,
+            type: "PATCH",
+            async: false,
+            data: JSON.stringify({albumName:$("#inputChange").val()}),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        }).fail(function(data){
+            alert("Edit album fail!");
+        })
     })
 })
 
