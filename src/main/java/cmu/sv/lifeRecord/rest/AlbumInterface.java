@@ -4,10 +4,12 @@ import cmu.sv.lifeRecord.exceptions.APPBadRequestException;
 import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
+import cmu.sv.lifeRecord.helpers.APPListResponse;
 import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
 import cmu.sv.lifeRecord.helpers.PATCH;
 import cmu.sv.lifeRecord.models.Album;
+import cmu.sv.lifeRecord.models.Record;
 import cmu.sv.lifeRecord.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -48,6 +51,21 @@ public class AlbumInterface {
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
+    public String albumCheckEditor(HttpHeaders headers, String albumId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("_id", new ObjectId(albumId));
+        Document item = albumCollection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such record.");
+        }
+        AuthCheck.checkEditorAuthentication(headers,item.getString("targetId"),false);
+        return item.getString("targetId");
+    }
 
     @GET
     @Path("{id}")
@@ -71,6 +89,54 @@ public class AlbumInterface {
 
             AuthCheck.checkEditorOrWatcherAuthentication(headers, album.getTargetId());
             return new APPResponse(album);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/records")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPListResponse getAlbumRecords(@Context HttpHeaders headers, @PathParam("id") String id,
+                                           @DefaultValue("4") @QueryParam("count") int count,
+                                           @DefaultValue("0") @QueryParam("offset") int offset) {
+        ArrayList<Record> recordList = new ArrayList<>();
+        try {
+            String targetId = albumCheckEditor(headers,id);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("albumId", id);
+            long resultCount = recordCollection.count(query);
+            FindIterable<Document> results = recordCollection.find(query).skip(offset).limit(count);
+            if (results == null) {
+                return new APPListResponse(recordList,resultCount,offset, recordList.size());
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (Document item : results) {
+                Record record = new Record(
+                        item.getString("recordName"),
+                        item.getString("recordInfo"),
+                        item.getString("albumId"),
+                        item.getString("targetId"),
+                        item.getString("userId"),
+                        sdf.format(item.getDate("createDate")),
+                        sdf.format(item.getDate("updateDate"))
+                );
+                record.setId(item.getObjectId("_id").toString());
+                recordList.add(record);
+            }
+            return new APPListResponse(recordList,resultCount,offset, recordList.size());
 
         }
         catch(APPNotFoundException e) {

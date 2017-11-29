@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static java.lang.System.err;
+
 @Path("targets")
 public class TargetInterface {
     private MongoCollection<Document> albumCollection;
@@ -99,16 +101,20 @@ public class TargetInterface {
     @GET
     @Path("{id}/albums")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getTargetAlbums(@Context HttpHeaders headers, @PathParam("id") String id) {
+    public APPListResponse getTargetAlbums(@Context HttpHeaders headers, @PathParam("id") String id,
+                                       @DefaultValue("4") @QueryParam("count") int count,
+                                       @DefaultValue("0") @QueryParam("offset") int offset) {
         ArrayList<Album> albumList = new ArrayList<>();
         try {
             AuthCheck.checkEditorAuthentication(headers,id,false);
             BasicDBObject query = new BasicDBObject();
 
             query.put("targetId", id);
-            FindIterable<Document> results = albumCollection.find(query);
+            long resultCount = albumCollection.count(query);
+            FindIterable<Document> results = albumCollection.find(query).skip(offset).limit(count);
             if (results == null) {
-                return new APPResponse(albumList);
+//                return new APPResponse(albumList);
+                return new APPListResponse(albumList,resultCount,offset, albumList.size());
             }
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (Document item : results) {
@@ -120,7 +126,8 @@ public class TargetInterface {
                 album.setId(item.getObjectId("_id").toString());
                 albumList.add(album);
             }
-            return new APPResponse(albumList);
+            //return new APPResponse(albumList);
+            return new APPListResponse(albumList,resultCount,offset, albumList.size());
 
         }
         catch(APPNotFoundException e) {
@@ -494,7 +501,19 @@ public class TargetInterface {
             else
                 doc.append("albumId","");
             recordCollection.insertOne(doc);
-            return new APPResponse(request);
+            ObjectId recordId = (ObjectId)doc.get( "_id" );
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Record record = new Record(
+                    (String)doc.get( "recordName" ),
+                    (String)doc.get( "recordInfo" ),
+                    (String)doc.get( "albumId" ),
+                    (String)doc.get( "targetId" ),
+                    (String)doc.get( "userId" ),
+                    sdf.format((Date) doc.get( "createDate" )),
+                    sdf.format((Date) doc.get( "updateDate" ))
+            );
+            record.setId(recordId.toString());
+            return new APPResponse(record);
         } catch (JsonProcessingException e) {
             throw new APPBadRequestException(33, "Failed to parse the data.");
         } catch(APPUnauthorizedException e) {

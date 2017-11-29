@@ -12,7 +12,9 @@
             crossorigin="anonymous"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           rel="stylesheet">
-    <!--<script src="album.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js">
+    </script>
+    <script src="recordDetail.js"></script>
 
     <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>-->
 
@@ -20,14 +22,14 @@
             <!--integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"-->
             <!--crossorigin="anonymous"></script>-->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">-->
-    <!--<link rel="stylesheet" href="Comments.css">-->
+    <link rel="stylesheet" href="Comments.css">
 
 
 <!--     <script src="record.js"></script>
  -->
 </head>
 <body>
-<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src="head.html" height="auto" width="100%"></iframe>
+<!--<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src="head.html" height="auto" width="100%"></iframe>-->
 <!--<nav class="navbar navbar-toggleable-md navbar-light navbar-inverse bg-primary">-->
   <!--<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">-->
     <!--<span class="navbar-toggler-icon"></span>-->
@@ -58,176 +60,175 @@
 
 
 
-</div>
+<!--</div>-->
  <div class="container">
-    <div>
-        <h1 class="text-primary" align="center">Records</h1>
-        <button id="addRecord" class="btn btn-info" type="submit">Add Record</button>
-    </div>
-    <hr />
-    <ul class="to-watch-list posters-list list-unstyled list-inline single-row" id="recordList"></ul>
   
 
     <!-- show the records by targets -->
     <div class="container">
 
-      <h1 class="my-2 text-center text-lg-left">Target1</h1>
+      <h1 class="my-2 text-center text-lg-left" id="titleRecord">Target1</h1>
 
       <div class="row text-center text-lg-left">
-
-        <div class="col-lg-3 col-md-4 col-xs-6">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
+          <div class="col-lg-3 col-md-4 col-xs-6">
+            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img1">
              <!-- Like button --> 
 
             <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->  
 
             <!-- Will countinue to work on it after backing home -->      
-            <div id="demo">
-                <button class="btn like btn-danger"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes">0</span></button>
-                <button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>
+            <div id="like1">
+                <button class="btn like btn-danger" id="likeBtn1"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes" id="likeNum1">0</span></button>
+                <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
             </div>
 
-             <p class="card-text">I went to Tennessee and took this picture, it was really a great trip </p>
-             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">
-              View
-            </button>
+            <p class="card-text" id="albumName1">I went to Tennessee and took this picture, it was really a great trip </p>
+            <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view1">-->
+              <!--View-->
+            <!--</button>-->
+              <button type="button" class="btn btn-info" id="view1">View</button>
 
-              <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Record Comments</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                          <div class="actionBox">
-                              <ul class="commentList">
-                                  <li>
-                                      <div class="commenterImage">
-                                        <img src="http://placekitten.com/50/50" />
-                                      </div>
-                                      <div class="commentText">
-                                          <p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>
+            <button id="editAlbum1" class="btn btn-info" type="submit" >Edit</button>
+            <button id="deleteAlbum1" class="btn btn-info" type="submit" >Delete</button>
+          </div>
+          <div class="col-lg-3 col-md-4 col-xs-6">
+              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img2">
+              <!-- Like button -->
 
-                                      </div>
-                                  </li>
-                                  <li>
-                                      <div class="commenterImage">
-                                        <img src="http://placekitten.com/45/45" />
-                                      </div>
-                                      <div class="commentText">
-                                          <p class="">Hello this is a test comment and this comment is particularly very long and it goes on and on and on.</p> <span class="date sub-text">on March 5th, 2014</span>
+              <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
 
-                                      </div>
-                                  </li>
-                                  <li>
-                                      <div class="commenterImage">
-                                        <img src="http://placekitten.com/40/40" />
-                                      </div>
-                                      <div class="commentText">
-                                          <p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>
-
-                                      </div>
-                                  </li>
-                              </ul>
-                              <form class="form-inline" role="form">
-                                  <div class="form-group">
-                                      <input class="form-control" type="text" placeholder="Your comments" />
-                                  </div>
-                                  <div class="form-group">
-                                      <button class="btn btn-info">Add</button>
-                                  </div>
-                              </form>
-                          </div>
-                    </div>
-<!--                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Save changes</button>
-                    </div> -->
-                  </div>
-                </div>
+              <!-- Will countinue to work on it after backing home -->
+              <div id="like2">
+                  <button class="btn like btn-danger" id="likeBtn2"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes" id="likeNum2">0</span></button>
+                  <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
               </div>
 
+              <p class="card-text" id="albumName2">I went to Tennessee and took this picture, it was really a great trip </p>
+              <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view2">-->
+                  <!--View-->
+              <!--</button>-->
+              <button type="button" class="btn btn-info" id="view2">View</button>
 
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          
-        </div>
-       <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        </div>
-        </div>
+              <button id="editAlbum2" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteAlbum2" class="btn btn-info" type="submit" >Delete</button>
+          </div>
+          <div class="col-lg-3 col-md-4 col-xs-6">
+              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img3">
+              <!-- Like button -->
 
-<h1 class="my-2 text-center text-lg-left">Target2</h1>
+              <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
 
-      <div class="row text-center text-lg-left">
+              <!-- Will countinue to work on it after backing home -->
+              <div id="like3">
+                  <button class="btn like btn-danger" id="likeBtn3"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes" id="likeNum3">0</span></button>
+                  <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
+              </div>
 
-        <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">I went to Tennessee and took this picture, it was really a great trip </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-       <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        <div class="col-lg-3 col-md-4 col-xs-6">
-          <a href="#" class="d-block mb-4 h-100">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="">
-             <p class="card-text">This food is so good that I want to have it one more, recommend it to all my friends </p>
-             <button id="editRecord" class="btn btn-info" type="submit" >Edit</button>
-             <button id="deleteRecord" class="btn btn-info" type="submit" >Delete</button>
-          </a>
-        </div>
-        </div>
-        </div>
+              <p class="card-text" id="albumName3">I went to Tennessee and took this picture, it was really a great trip </p>
+              <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view3">-->
+                  <!--View-->
+              <!--</button>-->
+              <button type="button" class="btn btn-info" id="view3">View</button>
+
+              <button id="editAlbum3" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteAlbum3" class="btn btn-info" type="submit" >Delete</button>
+          </div>
+          <div class="col-lg-3 col-md-4 col-xs-6">
+              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img4">
+              <!-- Like button -->
+
+              <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
+
+              <!-- Will countinue to work on it after backing home -->
+              <div id="like4">
+                  <button class="btn like btn-danger" id="likeBtn4"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Like <span class="likes" id="likeNum4">0</span></button>
+                  <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
+              </div>
+
+              <p class="card-text" id="albumName4">I went to Tennessee and took this picture, it was really a great trip </p>
+              <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view4">-->
+                  <!--View-->
+              <!--</button>-->
+              <button type="button" class="btn btn-info" id="view4">View</button>
+
+              <button id="editAlbum4" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteAlbum4" class="btn btn-info" type="submit" >Delete</button>
+          </div>
+
+          <!--viewWindows-->
+          <!--<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
+              <!--<div class="modal-dialog" role="document">-->
+                  <!--<div class="modal-content">-->
+                      <!--<div class="modal-header">-->
+                          <!--<h5 class="modal-title" id="exampleModalLabel">Record Comments</h5>-->
+                          <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+                              <!--<span aria-hidden="true">&times;</span>-->
+                          <!--</button>-->
+                      <!--</div>-->
+                      <!--<div class="modal-body">-->
+                          <!--<div class="actionBox">-->
+                              <!--<ul class="commentList">-->
+                                  <!--<li>-->
+                                      <!--<div class="commenterImage">-->
+                                          <!--<img src="http://placekitten.com/50/50" />-->
+                                      <!--</div>-->
+                                      <!--<div class="commentText">-->
+                                          <!--<p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>-->
+
+                                      <!--</div>-->
+                                  <!--</li>-->
+                                  <!--<li>-->
+                                      <!--<div class="commenterImage">-->
+                                          <!--<img src="http://placekitten.com/45/45" />-->
+                                      <!--</div>-->
+                                      <!--<div class="commentText">-->
+                                          <!--<p class="">Hello this is a test comment and this comment is particularly very long and it goes on and on and on.</p> <span class="date sub-text">on March 5th, 2014</span>-->
+
+                                      <!--</div>-->
+                                  <!--</li>-->
+                                  <!--<li>-->
+                                      <!--<div class="commenterImage">-->
+                                          <!--<img src="http://placekitten.com/40/40" />-->
+                                      <!--</div>-->
+                                      <!--<div class="commentText">-->
+                                          <!--<p class="">Hello this is a test comment.</p> <span class="date sub-text">on March 5th, 2014</span>-->
+
+                                      <!--</div>-->
+                                  <!--</li>-->
+                              <!--</ul>-->
+                              <!--<form class="form-inline" role="form">-->
+                                  <!--<div class="form-group">-->
+                                      <!--<input class="form-control" type="text" placeholder="Your comments" />-->
+                                  <!--</div>-->
+                                  <!--<div class="form-group">-->
+                                      <!--<button class="btn btn-info">Add</button>-->
+                                  <!--</div>-->
+                              <!--</form>-->
+                          <!--</div>-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash;                     <div class="modal-footer">-->
+                                            <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                                          <!--</div> &ndash;&gt;-->
+                  <!--</div>-->
+              <!--</div>-->
+          <!--</div>-->
 
 
-</div>
-<script src="https://code.jquery.com/jquery-3.1.1.min.js">
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js">
-</script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js">
-</script>
+
+        </div>
+    </div>
+
+     <br>
+     <div class="row text-center text-lg-left">
+     <p>
+         <button id="previous">Previous</button>&nbsp;&nbsp;
+         <button id="next">Next</button>
+         <span id="page"></span>
+     </p>
+     </div>
+ </div>
+
+
 </body>
 </html>
