@@ -513,6 +513,15 @@ public class TargetInterface {
                     sdf.format((Date) doc.get( "updateDate" ))
             );
             record.setId(recordId.toString());
+
+            if(json.has("picture")){
+                Document doc2 = new Document();
+                doc2.append("recordId", recordId.toString());
+                doc2.append("targetId",targetId);
+                doc2.append("url", json.getString("picture"));
+                picCollection.insertOne(doc2);
+            }
+
             return new APPResponse(record);
         } catch (JsonProcessingException e) {
             throw new APPBadRequestException(33, "Failed to parse the data.");
