@@ -72,6 +72,20 @@ $(function() {
                     albumIds.push(targetList[i].id);
                     albumNames.push(targetList[i].albumName);
                     document.getElementById(albumName[i]).innerHTML = targetList[i].albumName;
+                    $.ajax({
+                        url:  "/rest/albums/"+albumIds[i]+"/topicPicture",
+                        type: "GET",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+                        }
+                    }).done(function(data2){
+                        var picture = data2.content;
+                        if(picture != null && picture.url !="")
+                            document.getElementById(img[i]).src=picture.url;
+                        else
+                            document.getElementById(img[i]).src="http://localhost:8080/Life/pic/nosignal.jpg";
+                    })
                     if (isEditor == false) {
                         document.getElementById(editAlbum[i]).style.visibility = 'hidden';
                         document.getElementById(deleteAlbum[i]).style.visibility = 'hidden';

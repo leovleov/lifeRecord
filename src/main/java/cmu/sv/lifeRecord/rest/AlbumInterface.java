@@ -9,6 +9,7 @@ import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
 import cmu.sv.lifeRecord.helpers.PATCH;
 import cmu.sv.lifeRecord.models.Album;
+import cmu.sv.lifeRecord.models.Picture;
 import cmu.sv.lifeRecord.models.Record;
 import cmu.sv.lifeRecord.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +42,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class AlbumInterface {
     private MongoCollection<Document> recordCollection = null;
     private MongoCollection<Document> albumCollection;
+    private MongoCollection<Document> picCollection;
     private ObjectWriter ow;
 
     public AlbumInterface() {
@@ -48,6 +50,7 @@ public class AlbumInterface {
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         albumCollection = database.getCollection("albums");
         recordCollection = database.getCollection("records");
+        picCollection = database.getCollection("pictures");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -137,6 +140,46 @@ public class AlbumInterface {
                 recordList.add(record);
             }
             return new APPListResponse(recordList,resultCount,offset, recordList.size());
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/topicPicture")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getAlbumTopicPic(@Context HttpHeaders headers, @PathParam("id") String id) {
+        try {
+            String targetId = albumCheckEditor(headers,id);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("albumId", id);
+            Document item = recordCollection.find(query).first();
+            if (item == null) {
+                return new APPResponse(null);
+            }
+
+            query.clear();
+            query.put("recordId",item.getObjectId("_id").toString());
+            Document result = picCollection.find(query).first();
+            Picture pic = new Picture(
+                    result.getString("url"),
+                    result.getString("recordId"),
+                    result.getString("targetId")
+            );
+            pic.setId(result.getObjectId("_id").toString());
+            return new APPResponse(pic);
 
         }
         catch(APPNotFoundException e) {
