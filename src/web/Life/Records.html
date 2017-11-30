@@ -29,7 +29,7 @@
  -->
 </head>
 <body>
-<!--<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src="head.html" height="auto" width="100%"></iframe>-->
+<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src="head.html" height="auto" width="100%"></iframe>
 <!--<nav class="navbar navbar-toggleable-md navbar-light navbar-inverse bg-primary">-->
   <!--<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">-->
     <!--<span class="navbar-toggler-icon"></span>-->
@@ -70,7 +70,7 @@
       <h1 class="my-2 text-center text-lg-left" id="titleRecord">Target1</h1>
 
       <div class="row text-center text-lg-left">
-          <div class="col-lg-3 col-md-4 col-xs-6">
+          <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup1">
             <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img1">
              <!-- Like button --> 
 
@@ -82,16 +82,17 @@
                 <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
             </div>
 
-            <p class="card-text" id="albumName1">I went to Tennessee and took this picture, it was really a great trip </p>
+            <p class="card-title" id="recordName1">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-text" id="recordInfo1">I went to Tennessee and took this picture, it was really a great trip </p>
             <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view1">-->
               <!--View-->
             <!--</button>-->
-              <button type="button" class="btn btn-info" id="view1">View</button>
+              <button type="button" class="btn btn-info" id="view1">View Messages</button>
 
-            <button id="editAlbum1" class="btn btn-info" type="submit" >Edit</button>
-            <button id="deleteAlbum1" class="btn btn-info" type="submit" >Delete</button>
+            <button id="editBtn1" class="btn btn-info" type="submit" >Edit</button>
+            <button id="deleteBtn1" class="btn btn-info" type="submit" >Delete</button>
           </div>
-          <div class="col-lg-3 col-md-4 col-xs-6">
+          <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup2">
               <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img2">
               <!-- Like button -->
 
@@ -103,16 +104,17 @@
                   <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
               </div>
 
-              <p class="card-text" id="albumName2">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-title" id="recordName2">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-text" id="recordInfo2">I went to Tennessee and took this picture, it was really a great trip </p>
               <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view2">-->
                   <!--View-->
               <!--</button>-->
-              <button type="button" class="btn btn-info" id="view2">View</button>
+              <button type="button" class="btn btn-info" id="view2">View Messages</button>
 
-              <button id="editAlbum2" class="btn btn-info" type="submit" >Edit</button>
-              <button id="deleteAlbum2" class="btn btn-info" type="submit" >Delete</button>
+              <button id="editBtn2" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteBtn2" class="btn btn-info" type="submit" >Delete</button>
           </div>
-          <div class="col-lg-3 col-md-4 col-xs-6">
+          <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup3">
               <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img3">
               <!-- Like button -->
 
@@ -124,16 +126,17 @@
                   <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
               </div>
 
-              <p class="card-text" id="albumName3">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-title" id="recordName3">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-text" id="recordInfo3">I went to Tennessee and took this picture, it was really a great trip </p>
               <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view3">-->
                   <!--View-->
               <!--</button>-->
-              <button type="button" class="btn btn-info" id="view3">View</button>
+              <button type="button" class="btn btn-info" id="view3">View Messages</button>
 
-              <button id="editAlbum3" class="btn btn-info" type="submit" >Edit</button>
-              <button id="deleteAlbum3" class="btn btn-info" type="submit" >Delete</button>
+              <button id="editBtn3" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteBtn3" class="btn btn-info" type="submit" >Delete</button>
           </div>
-          <div class="col-lg-3 col-md-4 col-xs-6">
+          <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup4">
               <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img4">
               <!-- Like button -->
 
@@ -145,14 +148,15 @@
                   <!--<button class="btn dislike btn-warning"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span> Dislike <span class="dislikes">0</span></button>-->
               </div>
 
-              <p class="card-text" id="albumName4">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-title" id="recordName4">I went to Tennessee and took this picture, it was really a great trip </p>
+              <p class="card-text" id="recordInfo4">I went to Tennessee and took this picture, it was really a great trip </p>
               <!--<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view4">-->
                   <!--View-->
               <!--</button>-->
-              <button type="button" class="btn btn-info" id="view4">View</button>
+              <button type="button" class="btn btn-info" id="view4">View Messages</button>
 
-              <button id="editAlbum4" class="btn btn-info" type="submit" >Edit</button>
-              <button id="deleteAlbum4" class="btn btn-info" type="submit" >Delete</button>
+              <button id="editBtn4" class="btn btn-info" type="submit" >Edit</button>
+              <button id="deleteBtn4" class="btn btn-info" type="submit" >Delete</button>
           </div>
 
           <!--viewWindows-->

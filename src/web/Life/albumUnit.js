@@ -22,19 +22,22 @@ $(function() {
     var albumName = ["albumName1","albumName2","albumName3","albumName4"];
     var editAlbum = ["editAlbum1","editAlbum2", "editAlbum3", "editAlbum4"];
     var deleteAlbum = ["deleteAlbum1", "deleteAlbum2", "deleteAlbum3", "deleteAlbum4"];
+    var albumGroup = ["albumGroup1", "albumGroup2", "albumGroup3", "albumGroup4"];
     var albumIds = [];
+    var albumNames = [];
     var changeId = "";
 
-    var targetId = "59fcfcfce5526519d43e0940";
-    var targetName = "Leo Tseng";
-    // var targetId = getUrlParameter('targetId');
-    // var targetName = getUrlParameter('targetName');
+    // var targetId = "59fcfcfce5526519d43e0940";
+    // var targetName = "Leo Tseng";
+    var targetId = getUrlParameter('targetId');
+    var targetName = getUrlParameter('targetName');
     document.getElementById('titleTarget').innerHTML = "Target: "+targetName;
     loadAlbums();
 
 
     function loadAlbums(){
         albumIds = [];
+        albumNames = [];
         jQuery.ajax({
             url:  "/rest/targets/" + targetId + "/albums?offset=" + offset + "&count="  + count,
             type: "GET",
@@ -64,27 +67,32 @@ $(function() {
             $("#page").text("Page " + Math.floor(offset/count+1) + " of " + (Math.ceil(total/count)));
             var targetList = data.content;
             for(var i = 0 ; i < img.length ; i++){
-                document.getElementById(editAlbum[i]).style.visibility = 'visible';
-                document.getElementById(deleteAlbum[i]).style.visibility = 'visible';
-                document.getElementById(img[i]).style.visibility = 'visible';
-                //document.getElementById(like[i]).style.visibility = 'visible';
-                document.getElementById(albumName[i]).style.visibility = 'visible';
-                document.getElementById(view[i]).style.visibility = 'visible';
+                document.getElementById(albumGroup[i]).style.visibility = 'visible';
                 if(i < targetList.length) {
                     albumIds.push(targetList[i].id);
+                    albumNames.push(targetList[i].albumName);
                     document.getElementById(albumName[i]).innerHTML = targetList[i].albumName;
+                    $.ajax({
+                        url:  "/rest/albums/"+albumIds[i]+"/topicPicture",
+                        type: "GET",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+                        }
+                    }).done(function(data2){
+                        var picture = data2.content;
+                        if(picture != null && picture.url !="")
+                            document.getElementById(img[i]).src=picture.url;
+                        else
+                            document.getElementById(img[i]).src="http://localhost:8080/Life/pic/nosignal.jpg";
+                    })
                     if (isEditor == false) {
                         document.getElementById(editAlbum[i]).style.visibility = 'hidden';
                         document.getElementById(deleteAlbum[i]).style.visibility = 'hidden';
                     }
                 }
                 else{
-                    document.getElementById(editAlbum[i]).style.visibility = 'hidden';
-                    document.getElementById(deleteAlbum[i]).style.visibility = 'hidden';
-                    document.getElementById(img[i]).style.visibility = 'hidden';
-                    //document.getElementById(like[i]).style.visibility = 'hidden';
-                    document.getElementById(albumName[i]).style.visibility = 'hidden';
-                    document.getElementById(view[i]).style.visibility = 'hidden';
+                    document.getElementById(albumGroup[i]).style.visibility = 'hidden';
                 }
             }
 
@@ -110,19 +118,19 @@ $(function() {
     })
     $("#view1").click(function(e){
         e.preventDefault();
-        window.top.location.href = "RecordView.html?albumId="+albumIds[0];
+        window.top.location.href = "Records.html?albumId="+albumIds[0]+"&albumName="+albumNames[0]+"&targetId="+targetId;
     })
     $("#view2").click(function(e){
         e.preventDefault();
-        window.top.location.href = "RecordView.html?albumId="+albumIds[1];
+        window.top.location.href = "Records.html?albumId="+albumIds[1]+"&albumName="+albumNames[1]+"&targetId="+targetId;
     })
     $("#view3").click(function(e){
         e.preventDefault();
-        window.top.location.href = "RecordView.html?albumId="+albumIds[2];
+        window.top.location.href = "Records.html?albumId="+albumIds[2]+"&albumName="+albumNames[2]+"&targetId="+targetId;
     })
     $("#view4").click(function(e){
         e.preventDefault();
-        window.top.location.href = "RecordView.html?albumId="+albumIds[3];
+        window.top.location.href = "Records.html?albumId="+albumIds[3]+"&albumName="+albumNames[3]+"&targetId="+targetId;
     })
     $("#deleteAlbum1").click(function(e){
         e.preventDefault();
