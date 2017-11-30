@@ -73,6 +73,20 @@ $(function() {
                     recordIds.push(recordList[i].id);
                     document.getElementById(recordName[i]).innerHTML = recordList[i].recordName;
                     document.getElementById(recordInfo[i]).innerHTML = recordList[i].recordInfo;
+                    $.ajax({
+                        url:  "/rest/records/"+recordIds[i]+"/pictures",
+                        type: "GET",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+                        }
+                    }).done(function(data2){
+                        var picture = data2.content[0];
+                        if(picture != null && picture.url !="")
+                            document.getElementById(img[i]).src=picture.url;
+                        else
+                            document.getElementById(img[i]).src="http://localhost:8080/Life/pic/nosignal.jpg";
+                    })
                     if (isEditor == false) {
                         document.getElementById(editBtn[i]).style.visibility = 'hidden';
                         document.getElementById(deleteBtn[i]).style.visibility = 'hidden';
