@@ -2,7 +2,7 @@ $(function() {
     var token = localStorage.getItem("token");
     var userId = localStorage.getItem("userId");
     var userSelect = document.getElementById('userIdSelect');
-    var targetSelect = document.getElementById('targetIdSelect');
+    var targetSelect = document.getElementById('targetIdSelect_Record');
 
     $("#greeting").hide();
 
@@ -28,7 +28,7 @@ $(function() {
 
     $('#addButton').click(function () {
         jQuery.ajax ({
-            url:  "/rest/watchers/",
+            url:  "/rest/albums/",
             type: "POST",
             async: false,
             data: JSON.stringify({userId:userSelect.options[userSelect.selectedIndex].value,targetId:targetSelect.options[targetSelect.selectedIndex].value}),
@@ -38,16 +38,16 @@ $(function() {
                 xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
             }
         }).done(function(data){
-            $("#greeting").text("Add a new watcher " + userSelect.options[userSelect.selectedIndex].innerHTML + " successful!");
+            $("#greeting").text("Add a new record successfully!");
             $("#greeting").show();
-            location.href = "WatchersList.html"
+            location.href = "AlbumManagement.html"
         }).fail(function(data){
             $("#greeting").text("Fail ! Please check the data!");
             $("#greeting").show();
         })
     })
     $('#cancelButton').click(function () {
-        location.href = "WatchersList.html"
+        location.href = "AlbumManagement.html"
     })
 })
 
@@ -55,11 +55,11 @@ function targetChange() {
 
     var token = localStorage.getItem("token");
     var userId = localStorage.getItem("userId");
-    var userSelect = document.getElementById('userIdSelect');
-    var targetSelect = document.getElementById('targetIdSelect');
-    for(var i = userSelect.options.length - 1 ; i >= 0 ; i--)
+    var albumSelect = document.getElementById('albumIdSelect');
+    var targetSelect = document.getElementById('targetIdSelect_Record');
+    for(var i = albumSelect.options.length - 1 ; i >= 0 ; i--)
     {
-        userSelect.remove(i);
+        albumSelect.remove(i);
     }
     jQuery.ajax({
         url: "/rest/users/",
@@ -69,37 +69,37 @@ function targetChange() {
         // }
     }).done(function (data) {
         var dataList = data.content;
-        var watcherList;
+        var albumList;
         $.ajax({
-            url:  "/rest/targets/"+targetSelect.options[targetSelect.selectedIndex].value+"/watchers",
+            url:  "/rest/targets/"+targetSelect.options[targetSelect.selectedIndex].value+"/albums",
             type: "GET",
             async: false,
             beforeSend: function (xhr) {
                 xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
             }
         }).done(function(data){
-            watcherList = data.content;
+            albumList = data.content;
         }).fail(function(data){
-            watcherList = null;
+            albumList = null;
         })
 
         for (var i = 0; i < dataList.length; i++) {
-            var name = dataList[i].firstName + " " + dataList[i].lastName;
-            var watcherId = dataList[i].id;
+            var name = dataList[i].albumName;
+            var albumId = dataList[i].id;
             var found = false;
-            if(watcherId == "59fc1ddfa69f5d401c607623"){continue;} //why?
+            if(albumId == "5a02b5f339b860dea0b27a04") continue;
             else {
-                for (var j = 0; j < watcherList.length; j++) {
-                    if (watcherId == watcherList[j].id) {
+                for (var j = 0; j < albumList.length; j++) {
+                    if (albumId == albumList[j].id) {
                         found = true;
                     }
                 }
             }
             if(found == false) {
                 var opt = document.createElement('option');
-                opt.value = watcherId;
+                opt.value = albumId;
                 opt.innerHTML = name;
-                userSelect.appendChild(opt);
+                albumSelect.appendChild(opt);
             }
         }
     })
