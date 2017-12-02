@@ -134,6 +134,8 @@ $(function() {
     })
     $("#deleteAlbum1").click(function(e){
         e.preventDefault();
+        var r=confirm("Are you sure you want to delete this album");
+        if(r = true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[0],
             type: "DELETE",
@@ -145,9 +147,14 @@ $(function() {
         }).fail(function(data){
             alert("Delete album fail!");
         })
+        } else {
+            alert("Delete album fail!");
+        }
     })
     $("#deleteAlbum2").click(function(e){
         e.preventDefault();
+        var r=confirm("Are you sure you want to delete this album");
+        if(r = true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[1],
             type: "DELETE",
@@ -159,9 +166,14 @@ $(function() {
         }).fail(function(data){
             alert("Delete album fail!");
         })
+        } else {
+            alert("Delete album fail!");
+        }
     })
     $("#deleteAlbum3").click(function(e){
         e.preventDefault();
+        var r=confirm("Are you sure you want to delete this album");
+        if(r = true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[2],
             type: "DELETE",
@@ -173,9 +185,14 @@ $(function() {
         }).fail(function(data){
             alert("Delete album fail!");
         })
+    } else {
+        alert("Delete album fail!");
+    }
     })
     $("#deleteAlbum4").click(function(e){
         e.preventDefault();
+        var r=confirm("Are you sure you want to delete this album");
+        if(r = true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[3],
             type: "DELETE",
@@ -187,7 +204,13 @@ $(function() {
         }).fail(function(data){
             alert("Delete album fail!");
         })
+        } else {
+            alert("Delete album fail!");
+        }
     })
+
+
+
     $("#editAlbum1").click(function(e){
         e.preventDefault();
         changeId = albumIds[0];
@@ -223,6 +246,8 @@ $(function() {
             alert("Edit album fail!");
         })
     })
+
+
 })
 
 var getUrlParameter = function getUrlParameter(sParam) {
@@ -239,3 +264,37 @@ var getUrlParameter = function getUrlParameter(sParam) {
         }
     }
 };
+
+
+// Confirmation before delete
+function confirmDelete() {
+    var r=confirm("Are you sure you want to delete this album");
+
+    // var albumIds = [];
+    // for(var i = 0 ; i < img.length ; i++){
+    //     document.getElementById(albumGroup[i]).style.visibility = 'visible';
+    //     if(i < targetList.length) {
+    //         albumIds.push(targetList[i].id);
+    //     }
+
+    if (r==true)
+    {
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/albums/" + albumIds[1],
+            type: "DELETE",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
+        })
+
+    }
+    else
+    {
+        alert("Delete album fail!");
+    }
+}
+
+

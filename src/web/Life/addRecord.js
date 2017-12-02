@@ -3,6 +3,7 @@ $(function() {
     var userId = localStorage.getItem("userId");
     var userSelect = document.getElementById('userIdSelect');
     var targetSelect = document.getElementById('targetIdSelect_Record');
+    var albumSelect = document.getElementById('albumIdSelect');
 
     $("#greeting").hide();
 
@@ -28,10 +29,10 @@ $(function() {
 
     $('#addButton').click(function () {
         jQuery.ajax ({
-            url:  "/rest/albums/",
+            url:  "http://localhost:8080/rest/targets/" + targetSelect.options[targetSelect.selectedIndex].value + "/records",
             type: "POST",
             async: false,
-            data: JSON.stringify({userId:userSelect.options[userSelect.selectedIndex].value,targetId:targetSelect.options[targetSelect.selectedIndex].value}),
+            data: JSON.stringify({albumId:albumSelect.options[albumSelect.selectedIndex].value,recordName:$("#recordName").val(),recordInfo:$("#recordInfo").val(),picture:$("#recordURL").val()}),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             beforeSend: function (xhr) {
@@ -40,14 +41,14 @@ $(function() {
         }).done(function(data){
             $("#greeting").text("Add a new record successfully!");
             $("#greeting").show();
-            location.href = "AlbumManagement.html"
+           location.href = "AlbumView.html"
         }).fail(function(data){
             $("#greeting").text("Fail ! Please check the data!");
             $("#greeting").show();
         })
     })
     $('#cancelButton').click(function () {
-        location.href = "AlbumManagement.html"
+        location.href = "AlbumView.html"
     })
 })
 
@@ -62,45 +63,23 @@ function targetChange() {
         albumSelect.remove(i);
     }
     jQuery.ajax({
-        url: "/rest/users/",
+        url: "http://localhost:8080/rest/targets/"+targetSelect.options[targetSelect.selectedIndex].value+"/albums?count=99",
+        // url: "/rest/users/",
         type: "GET",
-        // beforeSend: function (xhr) {
-        //     xhr.setRequestHeader ("Authorization", token);
-        // }
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", token);
+        }
     }).done(function (data) {
         var dataList = data.content;
-        var albumList;
-        $.ajax({
-            url:  "/rest/targets/"+targetSelect.options[targetSelect.selectedIndex].value+"/albums",
-            type: "GET",
-            async: false,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
-            }
-        }).done(function(data){
-            albumList = data.content;
-        }).fail(function(data){
-            albumList = null;
-        })
 
         for (var i = 0; i < dataList.length; i++) {
             var name = dataList[i].albumName;
             var albumId = dataList[i].id;
-            var found = false;
-            if(albumId == "5a02b5f339b860dea0b27a04") continue;
-            else {
-                for (var j = 0; j < albumList.length; j++) {
-                    if (albumId == albumList[j].id) {
-                        found = true;
-                    }
-                }
-            }
-            if(found == false) {
-                var opt = document.createElement('option');
+
+            var opt = document.createElement('option');
                 opt.value = albumId;
                 opt.innerHTML = name;
                 albumSelect.appendChild(opt);
-            }
         }
     })
 }
