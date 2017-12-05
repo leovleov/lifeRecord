@@ -35,6 +35,7 @@ public class RecordsInterface {
     private MongoCollection<Document> picCollection;
     private MongoCollection<Document> msgCollection;
     private MongoCollection<Document> likeCollection;
+    private MongoCollection<Document> userCollection;
     private ObjectWriter ow;
 
 
@@ -45,6 +46,7 @@ public class RecordsInterface {
         picCollection = database.getCollection("pictures");
         msgCollection = database.getCollection("messages");
         likeCollection = database.getCollection("likes");
+        userCollection = database.getCollection("users");
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
@@ -99,7 +101,7 @@ public class RecordsInterface {
         return item.getString("targetId");
     }
 
-    public String recordCheckWatcher(HttpHeaders headers, String recordId) throws Exception {
+    public String recordCheckEditorOrWatcher(HttpHeaders headers, String recordId) throws Exception {
         List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
         if (authHeaders == null)
             throw new APPUnauthorizedException(70, "No Authorization Headers");
@@ -110,7 +112,7 @@ public class RecordsInterface {
         if (item == null) {
             throw new APPNotFoundException(0, "No such record.");
         }
-        AuthCheck.checkWatcherAuthentication(headers,item.getString("targetId"));
+        AuthCheck.checkEditorOrWatcherAuthentication(headers,item.getString("targetId"));
         return item.getString("targetId");
     }
 
@@ -141,7 +143,7 @@ public class RecordsInterface {
         query.put("userId", userId);
         Document item = likeCollection.find(query).first();
         if (item == null) {
-            throw new APPNotFoundException(0, "No such record.");
+            throw new APPNotFoundException(0, "No such like.");
         }
         if(!item.getString("userId").equals(userId))
             throw new APPUnauthorizedException(71, "Authorization fail!");
@@ -189,13 +191,39 @@ public class RecordsInterface {
     public APPResponse getLikeNumber(@Context HttpHeaders headers, @PathParam("id") String id) {
         BasicDBObject query = new BasicDBObject();
         try {
-            recordCheckWatcher(headers,id);
+            recordCheckEditorOrWatcher(headers,id);
             query.put("recordId", id);
             long resultCount = likeCollection.count(query);
 
             return new APPResponse(resultCount);
         } catch(APPNotFoundException e) {
             throw e;
+        } catch(APPUnauthorizedException e) {
+            throw e;
+        } catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }  catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/likeStatus")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse getLikeStatus(@Context HttpHeaders headers, @PathParam("id") String id) {
+        BasicDBObject query = new BasicDBObject();
+        try {
+            likeCheckOwn(headers,id);
+            //recordCheckWatcher(headers,id);
+            query.put("recordId", id);
+            long resultCount = likeCollection.count(query);
+            long[] result = {1,resultCount};
+            return new APPResponse(result);
+        } catch(APPNotFoundException e) {
+            query.put("recordId", id);
+            long resultCount = likeCollection.count(query);
+            long[] result = {0,resultCount};
+            return new APPResponse(result);
         } catch(APPUnauthorizedException e) {
             throw e;
         } catch(IllegalArgumentException e) {
@@ -216,7 +244,7 @@ public class RecordsInterface {
         ArrayList<Picture> picList = new ArrayList<Picture>();
 
         try {
-            recordCheckWatcher(headers, id);
+            recordCheckEditorOrWatcher(headers, id);
             BasicDBObject sortParams = new BasicDBObject();
             List<String> sortList = Arrays.asList(sortArg.split(","));
             sortList.forEach(sortItem -> {
@@ -254,13 +282,13 @@ public class RecordsInterface {
     @Produces({MediaType.APPLICATION_JSON})
     public APPListResponse getMessagesForRecord(@Context HttpHeaders headers, @PathParam("id") String id,
                                                 @DefaultValue("_id") @QueryParam("sort") String sortArg,
-                                                @DefaultValue("20") @QueryParam("count") int count,
+                                                @DefaultValue("100") @QueryParam("count") int count,
                                                 @DefaultValue("0") @QueryParam("offset") int offset) {
 
         ArrayList<Message> msgList = new ArrayList<>();
 
         try {
-            recordCheckWatcher(headers, id);
+            recordCheckEditorOrWatcher(headers, id);
             BasicDBObject sortParams = new BasicDBObject();
             List<String> sortList = Arrays.asList(sortArg.split(","));
             sortList.forEach(sortItem -> {
@@ -276,9 +304,10 @@ public class RecordsInterface {
             for (Document item : results) {
                 Message msg = new Message(
                         item.getString("userId"),
-                        item.getString("recordId"),
                         item.getString("messageInfo"),
-                        sdf.format(item.getDate("createDate"))
+                        item.getString("recordId"),
+                        sdf.format(item.getDate("createDate")),
+                        item.getString("userName")
                 );
                 msg.setId(item.getObjectId("_id").toString());
                 msgList.add(msg);
@@ -312,9 +341,6 @@ public class RecordsInterface {
             if (json.has("viewId"))
                 //doc.append("viewId",json.getString("viewId"));
                 throw new APPBadRequestException(33, "View History can't be updated.");
-            if (json.has("likeId"))
-                //doc.append("likeId",json.getString("likeId"));
-                throw new APPBadRequestException(33, "Like list can't be updated.");
             if (json.has("editorId"))
                 //doc.append("editorId",json.getString("editorId"));
                 throw new APPBadRequestException(33, "Editor can't be updated.");
@@ -471,7 +497,7 @@ public class RecordsInterface {
     public APPResponse createMessage(@Context HttpHeaders headers, @PathParam("id") String id, Object request) {
         JSONObject json = null;
         try {
-            String targetId = recordCheckEditor(headers, id);
+            String targetId = recordCheckEditorOrWatcher(headers, id);
 
             List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
             if (authHeaders == null)
@@ -482,10 +508,21 @@ public class RecordsInterface {
             json = new JSONObject(ow.writeValueAsString(request));
             if (!json.has("messageInfo"))
                 throw new APPBadRequestException(55,"missing message information.");
+
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("_id", new ObjectId(userId));
+            Document item = userCollection.find(query).first();
+            if (item == null) {
+                throw new APPNotFoundException(0, "No such user.");
+            }
+
             Document doc = new Document("messageInfo", json.getString("messageInfo"))
                     .append("userId", userId)
                     .append("recordId", id)
-                    .append("createDate", new Date());
+                    .append("createDate", new Date())
+                    .append("userName", item.getString("nickName"));
+
             msgCollection.insertOne(doc);
             return new APPResponse(request);
         } catch(APPUnauthorizedException e) {
@@ -508,7 +545,7 @@ public class RecordsInterface {
     public APPResponse createLike(@Context HttpHeaders headers, @PathParam("id") String id) {
         JSONObject json = null;
         try {
-            String targetId = recordCheckWatcher(headers, id);
+            String targetId = recordCheckEditorOrWatcher(headers, id);
 
             List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
             if (authHeaders == null)

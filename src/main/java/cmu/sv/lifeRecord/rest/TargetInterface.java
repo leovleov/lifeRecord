@@ -106,7 +106,7 @@ public class TargetInterface {
                                        @DefaultValue("0") @QueryParam("offset") int offset) {
         ArrayList<Album> albumList = new ArrayList<>();
         try {
-            AuthCheck.checkEditorAuthentication(headers,id,false);
+            AuthCheck.checkEditorOrWatcherAuthentication(headers,id);
             BasicDBObject query = new BasicDBObject();
 
             query.put("targetId", id);
@@ -150,7 +150,7 @@ public class TargetInterface {
     public APPResponse getTargetRecords(@Context HttpHeaders headers, @PathParam("id") String id) {
         ArrayList<Record> recordList = new ArrayList<>();
         try {
-            AuthCheck.checkEditorAuthentication(headers,id,false);
+            AuthCheck.checkEditorOrWatcherAuthentication(headers,id);
             BasicDBObject query = new BasicDBObject();
 
             query.put("targetId", id);
@@ -200,7 +200,7 @@ public class TargetInterface {
         ArrayList<Picture> picList = new ArrayList<Picture>();
 
         try {
-            AuthCheck.checkWatcherAuthentication(headers,id);
+            AuthCheck.checkEditorOrWatcherAuthentication(headers,id);
             BasicDBObject sortParams = new BasicDBObject();
             List<String> sortList = Arrays.asList(sortArg.split(","));
             sortList.forEach(sortItem -> {
@@ -269,6 +269,43 @@ public class TargetInterface {
                 userList.add(user);
             }
             return new APPResponse(userList);
+
+        }
+        catch(APPNotFoundException e) {
+            throw e;
+        }
+        catch(APPUnauthorizedException e) {
+            throw e;
+        }
+        catch(IllegalArgumentException e) {
+            throw new APPBadRequestException(45,"Unacceptable ID.");
+        }
+        catch(Exception e) {
+            throw new APPInternalServerException(99,"Unexpected error!");
+        }
+    }
+
+    @GET
+    @Path("{id}/isEditor")
+    @Produces({MediaType.APPLICATION_JSON})
+    public APPResponse isTargetEditor(@Context HttpHeaders headers, @PathParam("id") String id) {
+        ArrayList<User> userList = new ArrayList<>();
+        boolean result = false;
+        try {
+            String userId = AuthCheck.checkAnyAuthentication(headers);
+            BasicDBObject query = new BasicDBObject();
+
+            query.put("targetId", id);
+            FindIterable<Document> results = editorCollection.find(query);
+            if (results == null) {
+                return new APPResponse(userList);
+            }
+
+            for (Document item : results) {
+                if(userId.equals(item.getString("userId")))
+                    result = true;
+            }
+            return new APPResponse(result);
 
         }
         catch(APPNotFoundException e) {
