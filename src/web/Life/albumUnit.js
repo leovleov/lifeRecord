@@ -46,20 +46,19 @@ $(function() {
             }
         }).done(function (data) {
             $.ajax({
-                url:  "/rest/targets/"+targetId+"/editors",
+                url:  "/rest/targets/"+targetId+"/isEditor",
                 type: "GET",
                 async: false,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
                 }
             }).done(function(data2){
-                var editorList = data2.content;
-                for(var j = 0 ; j < editorList.length ; j++){
-                    if(userId == editorList[j].id)
-                        isEditor = true;
-                }
-            }).fail(function(data2){
-                editorList = null;
+                // var editorList = data2.content;
+                // for(var j = 0 ; j < editorList.length ; j++){
+                //     if(userId == editorList[j].id)
+                //         isEditor = true;
+                // }
+                isEditor = data2.content;
             })
 
 
@@ -135,7 +134,7 @@ $(function() {
     $("#deleteAlbum1").click(function(e){
         e.preventDefault();
         var r=confirm("Are you sure you want to delete this album");
-        if(r = true) {
+        if(r == true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[0],
             type: "DELETE",
@@ -148,13 +147,13 @@ $(function() {
             alert("Delete album fail!");
         })
         } else {
-            alert("Delete album fail!");
+            alert("Cancel delete!");
         }
     })
     $("#deleteAlbum2").click(function(e){
         e.preventDefault();
         var r=confirm("Are you sure you want to delete this album");
-        if(r = true) {
+        if(r == true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[1],
             type: "DELETE",
@@ -167,13 +166,13 @@ $(function() {
             alert("Delete album fail!");
         })
         } else {
-            alert("Delete album fail!");
+            alert("Cancel delete!");
         }
     })
     $("#deleteAlbum3").click(function(e){
         e.preventDefault();
         var r=confirm("Are you sure you want to delete this album");
-        if(r = true) {
+        if(r == true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[2],
             type: "DELETE",
@@ -183,7 +182,7 @@ $(function() {
         }).done(function (data) {
             location.href = "albumUnit.html?targetId="+targetId+"&targetName="+targetName;
         }).fail(function(data){
-            alert("Delete album fail!");
+            alert("Cancel delete!");
         })
     } else {
         alert("Delete album fail!");
@@ -192,7 +191,7 @@ $(function() {
     $("#deleteAlbum4").click(function(e){
         e.preventDefault();
         var r=confirm("Are you sure you want to delete this album");
-        if(r = true) {
+        if(r == true) {
         jQuery.ajax({
             url:  "/rest/albums/" + albumIds[3],
             type: "DELETE",
@@ -205,7 +204,7 @@ $(function() {
             alert("Delete album fail!");
         })
         } else {
-            alert("Delete album fail!");
+            alert("Cancel delete!");
         }
     })
 

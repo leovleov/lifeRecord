@@ -64,9 +64,25 @@ public class AlbumInterface {
         query.put("_id", new ObjectId(albumId));
         Document item = albumCollection.find(query).first();
         if (item == null) {
-            throw new APPNotFoundException(0, "No such record.");
+            throw new APPNotFoundException(0, "No such album.");
         }
         AuthCheck.checkEditorAuthentication(headers,item.getString("targetId"),false);
+        return item.getString("targetId");
+    }
+
+    public String albumCheckEditorOrWatcher(HttpHeaders headers, String albumId) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+
+        BasicDBObject query = new BasicDBObject();
+
+        query.put("_id", new ObjectId(albumId));
+        Document item = albumCollection.find(query).first();
+        if (item == null) {
+            throw new APPNotFoundException(0, "No such album.");
+        }
+        AuthCheck.checkEditorOrWatcherAuthentication(headers,item.getString("targetId"));
         return item.getString("targetId");
     }
 
@@ -116,7 +132,7 @@ public class AlbumInterface {
                                            @DefaultValue("0") @QueryParam("offset") int offset) {
         ArrayList<Record> recordList = new ArrayList<>();
         try {
-            String targetId = albumCheckEditor(headers,id);
+            String targetId = albumCheckEditorOrWatcher(headers,id);
             BasicDBObject query = new BasicDBObject();
 
             query.put("albumId", id);
@@ -161,7 +177,7 @@ public class AlbumInterface {
     @Produces({MediaType.APPLICATION_JSON})
     public APPResponse getAlbumTopicPic(@Context HttpHeaders headers, @PathParam("id") String id) {
         try {
-            String targetId = albumCheckEditor(headers,id);
+            String targetId = albumCheckEditorOrWatcher(headers,id);
             BasicDBObject query = new BasicDBObject();
 
             query.put("albumId", id);
