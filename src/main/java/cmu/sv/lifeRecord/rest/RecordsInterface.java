@@ -338,12 +338,6 @@ public class RecordsInterface {
             if (json.has("targetId"))
                 //doc.append("targetId",json.getString("targetId"));
                 throw new APPBadRequestException(33, "Target can't be updated.");
-            if (json.has("viewId"))
-                //doc.append("viewId",json.getString("viewId"));
-                throw new APPBadRequestException(33, "View History can't be updated.");
-            if (json.has("editorId"))
-                //doc.append("editorId",json.getString("editorId"));
-                throw new APPBadRequestException(33, "Editor can't be updated.");
 
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));
@@ -377,10 +371,16 @@ public class RecordsInterface {
     @Produces({ MediaType.APPLICATION_JSON})
     public APPResponse delete(@Context HttpHeaders headers, @PathParam("id") String id) {
         try {
-            recordCheckOwn(headers, id);
+            String targetId = recordCheckEditor(headers, id);
+
+            BasicDBObject query2 = new BasicDBObject();
+            query2.put("recordId", id);
+            msgCollection.deleteMany(query2);
+            likeCollection.deleteMany(query2);
+            picCollection.deleteMany(query2);
+
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));
-
             DeleteResult deleteResult = collection.deleteOne(query);
             if (deleteResult.getDeletedCount() < 1)
                 throw new APPNotFoundException(66, "Could not delete the record.");

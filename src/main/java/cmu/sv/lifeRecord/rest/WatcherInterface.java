@@ -21,6 +21,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("watchers")
 public class WatcherInterface {
@@ -28,6 +30,8 @@ public class WatcherInterface {
     private ObjectWriter ow;
 
     public WatcherInterface() {
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE);
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         collection = database.getCollection("watchers");

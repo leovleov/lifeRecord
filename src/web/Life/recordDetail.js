@@ -28,6 +28,8 @@ $(function() {
     var deleteBtn = ["deleteBtn1", "deleteBtn2", "deleteBtn3", "deleteBtn4"];
     var recordGroup = ["recordGroup1", "recordGroup2", "recordGroup3", "recordGroup4"];
     var recordIds = [];
+    var picIds = [];
+    var picUrls = [];
 
     // var albumId = "5a126ede35abf62df0428e98";
     // var albumName = "Study";
@@ -36,11 +38,16 @@ $(function() {
     var albumName = getUrlParameter('albumName');
     var targetId = getUrlParameter('targetId');
     document.getElementById('titleRecord').innerHTML = "Album: "+albumName;
+    var albumSelect = document.getElementById('albumIdSelect');
+    var curRecordCount;
+    var recordList;
     loadRecords();
 
 
     function loadRecords(){
         recordIds = [];
+        picUrls = [];
+        picIds = [];
         jQuery.ajax({
             url:  "/rest/albums/" + albumId + "/records?offset=" + offset + "&count="  + count,
             type: "GET",
@@ -68,7 +75,7 @@ $(function() {
 
             total = data.metadata.total;
             $("#page").text("Page " + Math.floor(offset/count+1) + " of " + (Math.ceil(total/count)));
-            var recordList = data.content;
+            recordList = data.content;
             for(var i = 0 ; i < img.length ; i++){
 
                 document.getElementById(recordGroup[i]).style.visibility = 'visible';
@@ -85,6 +92,8 @@ $(function() {
                         }
                     }).done(function(data2){
                         var picture = data2.content[0];
+                        picUrls.push(picture.url);
+                        picIds.push(picture.id);
                         if(picture != null && picture.url !="")
                             document.getElementById(img[i]).src=picture.url;
                         else
@@ -365,26 +374,45 @@ $(function() {
     })
     $("#view1").click(function(e){
         e.preventDefault();
-        // document.getElementById("comments").innerHTML = '';
+        curRecordCount = 0;
         fetchComments(0);
     })
     $("#view2").click(function(e){
         e.preventDefault();
-        // document.getElementById("comments").innerHTML = '';
+        curRecordCount = 1;
         fetchComments(1);
     })
     $("#view3").click(function(e){
         e.preventDefault();
-        // document.getElementById("comments").innerHTML = '';
+        curRecordCount = 2;
         fetchComments(2);
     })
     $("#view4").click(function(e){
         e.preventDefault();
-        // document.getElementById("comments").innerHTML = '';
+        curRecordCount = 3;
         fetchComments(3);
+    })
+    $("#commentSubmitBtn").click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url:  "/rest/records/" + recordIds[curRecordCount] + "/messages",
+            type: "POST",
+            async: false,
+            data: JSON.stringify({messageInfo:$("#myComment").val()}),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            fetchComments(curRecordCount);
+        }).fail(function(data){
+            alert("The comment can not be added. Please try again later.");
+        })
     })
     function fetchComments(btnNum){
         $('#comments').empty();
+        document.getElementById('myComment').value = "";
         jQuery.ajax({
             url:  "/rest/records/" + recordIds[btnNum] + "/messages",
             type: "GET",
@@ -409,6 +437,122 @@ $(function() {
             document.getElementById("comments").innerHTML = comments;
         })
     }
+    $("#deleteBtn1").click(function(e){
+        e.preventDefault();
+        deleteRecord(0);
+    })
+    $("#deleteBtn2").click(function(e){
+        e.preventDefault();
+        deleteRecord(1);
+    })
+    $("#deleteBtn3").click(function(e){
+        e.preventDefault();
+        deleteRecord(2);
+    })
+    $("#deleteBtn4").click(function(e){
+        e.preventDefault();
+        deleteRecord(3);
+    })
+    function deleteRecord(btnNum){
+        var r = confirm("Are you sure you want to delete this record?\nThis will delete all related data (likes, comments, pictures) and it's irreversible.");
+        if(r == true) {
+            jQuery.ajax({
+                url:  "/rest/records/" + recordIds[btnNum],
+                type: "DELETE",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader ("Authorization", token);
+                }
+            }).done(function (data) {
+                location.href = "Records.html?albumId="+albumId+"&albumName="+albumName+"&targetId="+targetId;
+            }).fail(function(data){
+                alert("Delete Record fail!");
+            })
+        } else {
+            alert("Cancel delete!");
+        }
+    }
+    $("#editBtn1").click(function(e){
+        e.preventDefault();
+        editRecord(0);
+    })
+    $("#editBtn2").click(function(e){
+        e.preventDefault();
+        editRecord(1);
+    })
+    $("#editBtn3").click(function(e){
+        e.preventDefault();
+        editRecord(2);
+    })
+    $("#editBtn4").click(function(e){
+        e.preventDefault();
+        editRecord(3);
+    })
+    function editRecord(btnNum){
+        curRecordCount = btnNum;
+        for(var i = albumSelect.options.length - 1 ; i >= 0 ; i--)
+        {
+            albumSelect.remove(i);
+        }
+        jQuery.ajax({
+            url: "http://localhost:8080/rest/targets/"+targetId+"/albums?count=99",
+            type: "GET",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", token);
+            }
+        }).done(function (data) {
+            var dataList = data.content;
+            var curSelect;
+            for (var i = 0; i < dataList.length; i++) {
+                var name = dataList[i].albumName;
+                var curAlbumId = dataList[i].id;
+
+                var opt = document.createElement('option');
+                opt.value = curAlbumId;
+                opt.innerHTML = name;
+                albumSelect.appendChild(opt);
+
+                if(albumId == curAlbumId)
+                    curSelect = i;
+            }
+            albumSelect.selectedIndex  = curSelect;
+        })
+        document.getElementById("recordName").value = recordList[btnNum].recordName;
+        document.getElementById("recordInfo").value = recordList[btnNum].recordInfo;
+        document.getElementById("recordURL").value = picUrls[btnNum];
+    }
+    $('#editSubmitBtn').click(function () {
+        jQuery.ajax ({
+            url:  "http://localhost:8080/rest/records/" + recordIds[curRecordCount],
+            type: "PATCH",
+            async: false,
+            data: JSON.stringify({albumId:albumSelect.options[albumSelect.selectedIndex].value,recordName:$("#recordName").val(),recordInfo:$("#recordInfo").val()}),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+            }
+        }).done(function(data){
+            if(picUrls[curRecordCount]!=document.getElementById("recordURL").value){
+                $.ajax({
+                    url:  "http://localhost:8080/rest/pictures/" + picIds[curRecordCount],
+                    type: "PATCH",
+                    async: false,
+                    data: JSON.stringify({url:document.getElementById("recordURL").value}),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+                    }
+                }).done(function(data){
+                }).fail(function(data){
+                    alert("Fail to update this picture! Please check the data and try again later!");
+                })
+            }
+            location.href = "Records.html?albumId="+albumId+"&albumName="+albumName+"&targetId="+targetId;
+        }).fail(function(data){
+            alert("Fail to update this record! Please check the data and try again later!");
+        })
+    })
 })
 
 var getUrlParameter = function getUrlParameter(sParam) {
