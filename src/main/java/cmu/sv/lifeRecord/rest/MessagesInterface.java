@@ -24,6 +24,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("messages")
 public class MessagesInterface {
@@ -31,6 +33,8 @@ public class MessagesInterface {
     private ObjectWriter ow;
 
     public MessagesInterface() {
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE);
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         collection = database.getCollection("messages");

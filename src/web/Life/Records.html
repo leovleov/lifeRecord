@@ -31,7 +31,8 @@
 <body>
 <iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src="head.html" height="auto" width="100%"></iframe>
 
-
+<h1 class="display-1" align="center">Record Overview</h1>
+<hr />
 <!--</div>-->
  <div class="container">
   
@@ -43,7 +44,7 @@
 
       <div class="row text-center text-lg-left">
           <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup1">
-            <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img1">
+            <img class="img-fluid img-thumbnail" src="/Life/pic/nosignal.jpg" alt="" id="img1">
              <!-- Like button --> 
 
             <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->  
@@ -59,12 +60,14 @@
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view1">
               Comments
             </button>
-
-            <button id="editBtn1" class="btn btn-info" type="submit" >Edit</button>
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editModal" id="editBtn1">
+                  Edit
+              </button>
+            <!--<button id="editBtn1" class="btn btn-info" type="submit" >Edit</button>-->
             <button id="deleteBtn1" class="btn btn-info" type="submit" >Delete</button>
           </div>
           <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup2">
-              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img2">
+              <img class="img-fluid img-thumbnail" src="/Life/pic/nosignal.jpg" alt="" id="img2">
               <!-- Like button -->
 
               <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
@@ -80,13 +83,14 @@
               <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view2">
                   Comments
               </button>
-
-
-              <button id="editBtn2" class="btn btn-info" type="submit" >Edit</button>
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editModal" id="editBtn2">
+                  Edit
+              </button>
+              <!--<button id="editBtn2" class="btn btn-info" type="submit" >Edit</button>-->
               <button id="deleteBtn2" class="btn btn-info" type="submit" >Delete</button>
           </div>
           <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup3">
-              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img3">
+              <img class="img-fluid img-thumbnail" src="/Life/pic/nosignal.jpg" alt="" id="img3">
               <!-- Like button -->
 
               <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
@@ -102,13 +106,14 @@
               <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view3">
                   Comments
               </button>
-
-
-              <button id="editBtn3" class="btn btn-info" type="submit" >Edit</button>
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editModal" id="editBtn3">
+                  Edit
+              </button>
+              <!--<button id="editBtn3" class="btn btn-info" type="submit" >Edit</button>-->
               <button id="deleteBtn3" class="btn btn-info" type="submit" >Delete</button>
           </div>
           <div class="col-lg-3 col-md-4 col-xs-6" id="recordGroup4">
-              <img class="img-fluid img-thumbnail" src="http://placehold.it/400x300" alt="" id="img4">
+              <img class="img-fluid img-thumbnail" src="/Life/pic/nosignal.jpg" alt="" id="img4">
               <!-- Like button -->
 
               <!-- Just follow these codes, but cannot work! https://www.jqueryscript.net/demo/Minimal-Like-Dislike-Button-Plugin-with-jQuery-like-dislike/ -->
@@ -124,9 +129,10 @@
               <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal" id="view4">
                   Comments
               </button>
-
-
-              <button id="editBtn4" class="btn btn-info" type="submit" >Edit</button>
+              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editModal" id="editBtn4">
+                  Edit
+              </button>
+              <!--<button id="editBtn4" class="btn btn-info" type="submit" >Edit</button>-->
               <button id="deleteBtn4" class="btn btn-info" type="submit" >Delete</button>
           </div>
 
@@ -164,10 +170,10 @@
                               </ul>
                               <form class="form-inline" role="form">
                                   <div class="form-group">
-                                      <input class="form-control" type="text" placeholder="Your comments" />
+                                      <input class="form-control" type="text" placeholder="Your comments" id="myComment"/>
                                   </div>
                                   <div class="form-group">
-                                      <button class="btn btn-info">Add</button>
+                                      <button class="btn btn-info" id="commentSubmitBtn">Add</button>
                                   </div>
                               </form>
                           </div>
@@ -176,6 +182,47 @@
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             <button type="button" class="btn btn-primary">Save changes</button>
                                           </div> -->
+                  </div>
+              </div>
+          </div>
+
+          <!--editWindows-->
+          <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="editModalLabel">Record Edit</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                          <label class="mr-sm-2" for="albumIdSelect">Select Album</label>
+                          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="albumIdSelect">
+                              <option selected value="">Choose...</option>
+                          </select>
+                          <br>
+                          <!--We give the default album-->
+                          <small id="albumDescription" class="form-text text-muted">Please choose the album to move record.</small>
+                          <br>
+                          <br>
+                          <div class="form-group">
+                              <label>Record Name:</label>
+                              <input type="text" class="form-control" id="recordName">
+                          </div>
+                          <div class="form-group">
+                              <label>Record Description:</label>
+                              <input type="text" class="form-control" id="recordInfo">
+                          </div>
+                          <div class="form-group">
+                              <label>Picture URL:</label>
+                              <input type="text" class="form-control" id="recordURL">
+                          </div>
+
+                          <div class="form-group">
+                              <button class="btn btn-warning" id="editSubmitBtn">Edit this record!</button>
+                          </div>
+                      </div>
                   </div>
               </div>
           </div>

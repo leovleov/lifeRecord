@@ -23,6 +23,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("pictures")
 public class PicturesInterface {
@@ -30,6 +32,8 @@ public class PicturesInterface {
     private ObjectWriter ow;
 
     public PicturesInterface() {
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE);
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
         collection = database.getCollection("pictures");

@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import static java.lang.System.err;
@@ -48,6 +50,8 @@ public class TargetInterface {
 
 
     public TargetInterface() {
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE);
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
 
@@ -459,6 +463,7 @@ public class TargetInterface {
 
             DeleteResult deleteResultEditor = editorCollection.deleteMany(queryCheckNum);
             DeleteResult deleteResultWatcher = watcherCollection.deleteMany(queryCheckNum);
+            DeleteResult deleteResultAlbum = albumCollection.deleteMany(queryCheckNum);
 
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));

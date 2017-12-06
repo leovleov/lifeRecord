@@ -29,10 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 @Path("users")
 public class UsersInterface {
+
     private MongoCollection<Document> userCollection;
     private MongoCollection<Document> targetCollection;
     private MongoCollection<Document> watcherCollection;
@@ -41,6 +44,8 @@ public class UsersInterface {
 
 
     public UsersInterface() {
+        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+        mongoLogger.setLevel(Level.SEVERE);
         MongoClient mongoClient = new MongoClient();
         MongoDatabase database = mongoClient.getDatabase("liferecord");
 

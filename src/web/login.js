@@ -29,7 +29,7 @@ $(function() {
             localStorage.setItem("token", token);
             localStorage.setItem("userId", userId);
             localStorage.setItem("userName", userName);
-            location.href = "Life/AlbumManagement.html"
+            location.href = "Life/AlbumView.html"
         }).fail(function(data){
             $("#greeting").text("Authentication Fail ! You might want to try it again!");
             $("#greeting").show();

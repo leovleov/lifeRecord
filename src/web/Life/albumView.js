@@ -13,7 +13,7 @@ $(function() {
     }).done(function (data) {
         var targetList = data.content;
         for(var i = 0 ; i < targetList.length ; i++){
-            var albumDiv = "<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src=\"albumUnit.html?targetId="+targetList[i].id+"&targetName="+targetList[i].targetName+"\" height=450 width=\"100%\" name=\"test1\" id=\"test1\"></iframe>";
+            var albumDiv = "<iframe MARGINWIDTH=0 MARGINHEIGHT=0 HSPACE=0 VSPACE=0 FRAMEBORDER=0 SCROLLING=no src=\"albumUnit.html?targetId="+targetList[i].id+"&targetName="+targetList[i].targetName+"\" height=490 width=\"100%\" name=\"test1\" id=\"test1\"></iframe>";
             $('#albumList').append(albumDiv);
         }
     })
