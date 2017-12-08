@@ -39,13 +39,13 @@ $(function() {
         }).done(function(data){
             $("#greeting").text("Add a new album " + $("#albumName").val() + " successful!");
             $("#greeting").show();
-            location.href = "AlbumManagement.html"
+            location.href = "AlbumView.html"
         }).fail(function(data){
             $("#greeting").text("Fail ! Please check the data!");
             $("#greeting").show();
         })
     })
     $('#cancelButton').click(function () {
-        location.href = "AlbumManagement.html"
+        location.href = "AlbumView.html"
     })
 })
