@@ -49,7 +49,7 @@ $(function() {
         recordIds = [];
         picUrls = [];
         picIds = [];
-        likeList = [];
+        likeList = [0,0,0,0];
         jQuery.ajax({
             url:  "/rest/albums/" + albumId + "/records?offset=" + offset + "&count="  + count,
             type: "GET",
@@ -100,29 +100,31 @@ $(function() {
                             document.getElementById(img[i]).src=picture.url;
                         else
                             document.getElementById(img[i]).src="http://localhost:8080/Life/pic/nosignal.jpg";
+                        $.ajax({
+                            url:  "/rest/records/"+recordIds[i]+"/likeStatus",
+                            type: "GET",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
+                            }
+                        }).done(function(data2){
+                            document.getElementById(likeNum[i]).innerHTML = data2.content[1];
+                            if(data2.content[0] == 0){
+                                likeList[i] = 0;
+                                $("#"+likeBtn[i]).removeClass("btn-danger").addClass("btn-dark");
+                            }
+                            else{
+                                likeList[i] = 1;
+                                $("#"+likeBtn[i]).removeClass("btn-dark").addClass("btn-danger");
+                            }
+
+                        })
                     })
                     if (isEditor == false) {
                         document.getElementById(editBtn[i]).style.visibility = 'hidden';
                         document.getElementById(deleteBtn[i]).style.visibility = 'hidden';
                     }
-                    $.ajax({
-                        url:  "/rest/records/"+recordIds[i]+"/likeStatus",
-                        type: "GET",
-                        async: false,
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader ("Authorization", localStorage.getItem("token"));
-                        }
-                    }).done(function(data2){
-                        document.getElementById(likeNum[i]).innerHTML = data2.content[1];
-                        if(data2.content[0] == 0){
-                            likeList.push(0);
-                        }
-                        else{
-                            likeList.push(1);
-                            $("#"+likeBtn[i]).removeClass("btn-dark").addClass("btn-danger");
-                        }
 
-                    })
                 }
                 else{
 
