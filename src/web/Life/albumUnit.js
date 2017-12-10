@@ -39,6 +39,7 @@ $(function() {
         albumIds = [];
         albumNames = [];
         jQuery.ajax({
+            // groups of pics
             url:  "/rest/targets/" + targetId + "/albums?offset=" + offset + "&count="  + count,
             type: "GET",
             beforeSend: function (xhr) {

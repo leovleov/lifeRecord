@@ -51,6 +51,7 @@ $(function() {
         picIds = [];
         likeList = [0,0,0,0];
         jQuery.ajax({
+            //offset?
             url:  "/rest/albums/" + albumId + "/records?offset=" + offset + "&count="  + count,
             type: "GET",
             beforeSend: function (xhr) {

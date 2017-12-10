@@ -44,6 +44,8 @@ public class MessagesInterface {
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
+    //get? put?
+
     @PATCH
     @Path("{id}")
     @Consumes({ MediaType.APPLICATION_JSON})
