@@ -44,15 +44,20 @@ public class UsersInterface {
 
 
     public UsersInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-
-        this.userCollection = database.getCollection("users");
-        this.targetCollection = database.getCollection("targets");
-        this.watcherCollection = database.getCollection("watchers");
-        this.editorCollection = database.getCollection("editors");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//
+//        this.userCollection = database.getCollection("users");
+//        this.targetCollection = database.getCollection("targets");
+//        this.watcherCollection = database.getCollection("watchers");
+//        this.editorCollection = database.getCollection("editors");
+        APPConnection appConnection = new APPConnection();
+        this.targetCollection = appConnection.targetCollection;
+        this.editorCollection = appConnection.editorCollection;
+        this.watcherCollection = appConnection.watcherCollection;
+        this.userCollection = appConnection.userCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }

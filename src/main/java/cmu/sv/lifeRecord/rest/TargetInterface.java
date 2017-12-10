@@ -4,10 +4,7 @@ import cmu.sv.lifeRecord.exceptions.APPBadRequestException;
 import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
-import cmu.sv.lifeRecord.helpers.APPCrypt;
-import cmu.sv.lifeRecord.helpers.APPListResponse;
-import cmu.sv.lifeRecord.helpers.APPResponse;
-import cmu.sv.lifeRecord.helpers.AuthCheck;
+import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.models.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,18 +47,26 @@ public class TargetInterface {
 
 
     public TargetInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-
-        this.albumCollection = database.getCollection("albums");
-        this.targetCollection = database.getCollection("targets");
-        this.editorCollection = database.getCollection("editors");
-        this.watcherCollection = database.getCollection("watchers");
-        this.userCollection = database.getCollection("users");
-        this.recordCollection = database.getCollection("records");
-        this.picCollection = database.getCollection("pictures");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//
+//        this.albumCollection = database.getCollection("albums");
+//        this.targetCollection = database.getCollection("targets");
+//        this.editorCollection = database.getCollection("editors");
+//        this.watcherCollection = database.getCollection("watchers");
+//        this.userCollection = database.getCollection("users");
+//        this.recordCollection = database.getCollection("records");
+//        this.picCollection = database.getCollection("pictures");
+        APPConnection appConnection = new APPConnection();
+        this.albumCollection = appConnection.albumCollection;
+        this.targetCollection = appConnection.targetCollection;
+        this.editorCollection = appConnection.editorCollection;
+        this.watcherCollection = appConnection.watcherCollection;
+        this.userCollection = appConnection.userCollection;
+        this.recordCollection = appConnection.recordCollection;
+        this.picCollection = appConnection.picCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }

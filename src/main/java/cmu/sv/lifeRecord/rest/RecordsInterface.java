@@ -40,13 +40,19 @@ public class RecordsInterface {
 
 
     public RecordsInterface() {
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("records");
-        picCollection = database.getCollection("pictures");
-        msgCollection = database.getCollection("messages");
-        likeCollection = database.getCollection("likes");
-        userCollection = database.getCollection("users");
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//        collection = database.getCollection("records");
+//        picCollection = database.getCollection("pictures");
+//        msgCollection = database.getCollection("messages");
+//        likeCollection = database.getCollection("likes");
+//        userCollection = database.getCollection("users");
+        APPConnection appConnection = new APPConnection();
+        this.collection = appConnection.recordCollection;
+        this.picCollection = appConnection.picCollection;
+        this.msgCollection = appConnection.msgCollection;
+        this.likeCollection = appConnection.likeCollection;
+        this.userCollection = appConnection.userCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

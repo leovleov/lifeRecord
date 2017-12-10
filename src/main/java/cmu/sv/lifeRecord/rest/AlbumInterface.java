@@ -4,10 +4,7 @@ import cmu.sv.lifeRecord.exceptions.APPBadRequestException;
 import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
-import cmu.sv.lifeRecord.helpers.APPListResponse;
-import cmu.sv.lifeRecord.helpers.APPResponse;
-import cmu.sv.lifeRecord.helpers.AuthCheck;
-import cmu.sv.lifeRecord.helpers.PATCH;
+import cmu.sv.lifeRecord.helpers.*;
 import cmu.sv.lifeRecord.models.Album;
 import cmu.sv.lifeRecord.models.Picture;
 import cmu.sv.lifeRecord.models.Record;
@@ -42,19 +39,28 @@ import static com.mongodb.client.model.Filters.eq;
 
 @Path("albums")
 public class AlbumInterface {
-    private MongoCollection<Document> recordCollection = null;
     private MongoCollection<Document> albumCollection;
+    private MongoCollection<Document> targetCollection;
+    private MongoCollection<Document> editorCollection;
+    private MongoCollection<Document> watcherCollection;
+    private MongoCollection<Document> userCollection;
+    private MongoCollection<Document> recordCollection;
     private MongoCollection<Document> picCollection;
     private ObjectWriter ow;
 
     public AlbumInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        albumCollection = database.getCollection("albums");
-        recordCollection = database.getCollection("records");
-        picCollection = database.getCollection("pictures");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+        APPConnection appConnection = new APPConnection();
+        this.albumCollection = appConnection.albumCollection;
+        this.targetCollection = appConnection.targetCollection;
+        this.editorCollection = appConnection.editorCollection;
+        this.watcherCollection = appConnection.watcherCollection;
+        this.userCollection = appConnection.userCollection;
+        this.recordCollection = appConnection.recordCollection;
+        this.picCollection = appConnection.picCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

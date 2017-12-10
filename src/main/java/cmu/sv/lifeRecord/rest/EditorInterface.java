@@ -26,11 +26,13 @@ public class EditorInterface {
     private ObjectWriter ow;
 
     public EditorInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("editors");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//        collection = database.getCollection("editors");
+        APPConnection appConnection = new APPConnection();
+        this.collection = appConnection.editorCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
