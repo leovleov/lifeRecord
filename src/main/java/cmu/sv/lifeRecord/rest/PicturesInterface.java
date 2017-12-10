@@ -40,6 +40,7 @@ public class PicturesInterface {
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
+    // Check if the pic should be shown to this editor
     public String picCheckEditor(HttpHeaders headers, String picId) throws Exception {
         List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
         if (authHeaders == null)
@@ -56,6 +57,7 @@ public class PicturesInterface {
         return item.getString("targetId");
     }
 
+    // Check if the pic should be shown to this watcher
     public String picCheckWatcher(HttpHeaders headers, String picId) throws Exception {
         List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
         if (authHeaders == null)
@@ -113,6 +115,7 @@ public class PicturesInterface {
             if (item == null) {
                 throw new APPNotFoundException(0, "No such picture.");
             }
+            //Check if the pic belong to this target
             AuthCheck.checkWatcherAuthentication(headers, item.getString("targetId"));
             Picture pic = new Picture(
                     item.getString("url"),
@@ -143,9 +146,10 @@ public class PicturesInterface {
         JSONObject json = null;
         try {
             picCheckEditor(headers, id);
+            //Put the things that user has edited to Json
             json = new JSONObject(ow.writeValueAsString(request));
+            //You cannot edit target ID
             if (json.has("recordId"))
-                //doc.append("recordId",json.getString("recordId"));
                 throw new APPBadRequestException(33, "Record can't be updated.");
 
             BasicDBObject query = new BasicDBObject();
@@ -182,6 +186,7 @@ public class PicturesInterface {
             BasicDBObject query = new BasicDBObject();
             query.put("_id", new ObjectId(id));
 
+            //Put the things you want to delete to the deleteResult
             DeleteResult deleteResult = collection.deleteOne(query);
             if (deleteResult.getDeletedCount() < 1)
                 throw new APPNotFoundException(66, "Could not delete");
