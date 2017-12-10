@@ -32,11 +32,13 @@ public class PicturesInterface {
     private ObjectWriter ow;
 
     public PicturesInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("pictures");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//        collection = database.getCollection("pictures");
+        APPConnection appConnection = new APPConnection();
+        this.collection = appConnection.picCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

@@ -4,6 +4,7 @@ import cmu.sv.lifeRecord.exceptions.APPBadRequestException;
 import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
+import cmu.sv.lifeRecord.helpers.APPConnection;
 import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,11 +31,13 @@ public class WatcherInterface {
     private ObjectWriter ow;
 
     public WatcherInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("watchers");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//        collection = database.getCollection("watchers");
+        APPConnection appConnection = new APPConnection();
+        this.collection = appConnection.watcherCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

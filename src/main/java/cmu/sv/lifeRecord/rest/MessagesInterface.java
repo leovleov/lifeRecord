@@ -4,6 +4,7 @@ import cmu.sv.lifeRecord.exceptions.APPBadRequestException;
 import cmu.sv.lifeRecord.exceptions.APPInternalServerException;
 import cmu.sv.lifeRecord.exceptions.APPNotFoundException;
 import cmu.sv.lifeRecord.exceptions.APPUnauthorizedException;
+import cmu.sv.lifeRecord.helpers.APPConnection;
 import cmu.sv.lifeRecord.helpers.APPResponse;
 import cmu.sv.lifeRecord.helpers.AuthCheck;
 import cmu.sv.lifeRecord.helpers.PATCH;
@@ -33,11 +34,13 @@ public class MessagesInterface {
     private ObjectWriter ow;
 
     public MessagesInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-        collection = database.getCollection("messages");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//        collection = database.getCollection("messages");
+        APPConnection appConnection = new APPConnection();
+        this.collection = appConnection.msgCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 

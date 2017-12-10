@@ -31,12 +31,14 @@ public class SessionsInterface {
 
 
     public SessionsInterface() {
-        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
-        mongoLogger.setLevel(Level.SEVERE);
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase database = mongoClient.getDatabase("liferecord");
-
-        this.userCollection = database.getCollection("users");
+//        Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
+//        mongoLogger.setLevel(Level.SEVERE);
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase database = mongoClient.getDatabase("liferecord");
+//
+//        this.userCollection = database.getCollection("users");
+        APPConnection appConnection = new APPConnection();
+        this.userCollection = appConnection.userCollection;
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
