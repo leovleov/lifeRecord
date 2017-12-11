@@ -15,10 +15,12 @@ $(function() {
             $("#messaging").text("Sign Up Successfully!");
             $("#messaging").show();
             $("#resourceTable").find(".cloned").remove();
-            token = data.content.token;
-            userId = data.content.userId;
+            var token = data.content.token;
+            var userId = data.content.userId;
+            var userName = data.content.firstName + " " + data.content.lastName;
             localStorage.setItem("token", token);
             localStorage.setItem("userId", userId);
+            localStorage.setItem("userName", userName);
             location.href = "AlbumManagement.html"
         }).fail(function(data){
             $("#messaging").text("Sign Up Fail ! Please check the information and try it again!");
